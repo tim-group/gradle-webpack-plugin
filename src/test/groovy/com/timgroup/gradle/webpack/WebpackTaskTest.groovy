@@ -1,0 +1,154 @@
+package com.timgroup.gradle.webpack
+
+import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.TaskOutcome
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
+import spock.lang.Specification
+
+import java.util.zip.GZIPInputStream
+
+class WebpackTaskTest extends Specification {
+    @Rule public final TemporaryFolder testProjectDir = new TemporaryFolder()
+
+    File buildFile
+
+    def setup() {
+        buildFile = testProjectDir.newFile('build.gradle')
+    }
+
+    private static def filesIn(File dir) {
+        return (dir.list() ?: []) as Set
+    }
+
+    private static def ungzippedBytes(File file) {
+        return new GZIPInputStream(new FileInputStream(file)).bytes
+    }
+
+    def "compiles javascript files with webpack, compresses outputs and produces manifest"() {
+        given:
+        buildFile << """
+plugins {
+  id 'com.timgroup.webpack'
+}
+"""
+
+        testProjectDir.newFolder("src", "main", "javascript")
+        testProjectDir.newFile("package.json") << """
+{
+  "dependencies": {
+    "webpack": "3.6.0"
+  }
+}
+"""
+        testProjectDir.newFile("webpack.config.js") << """
+var webpack = require("webpack");
+var path = require('path');
+function relative(suffix) {
+    return path.resolve(__dirname, suffix);
+}
+module.exports = {
+  context: relative("src/main/javascript"),
+  output: {
+    filename: "[name].js",
+    path: relative("build/site")
+  },
+  entry: "./init"
+};
+"""
+        testProjectDir.newFile("src/main/javascript/init.js") << """
+// this is init.js
+"""
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments("assemble")
+            .withPluginClasspath()
+            .build()
+
+        then:
+        result.task(":webpack").outcome == TaskOutcome.SUCCESS
+        filesIn(new File(testProjectDir.root, "build/site")) == ["main.js", "main.js.map", "main.js.gz", "main.js.map.gz", ".MANIFEST"] as Set
+        new File(testProjectDir.root, "build/site/.MANIFEST").text.contains(" main.js ")
+        new File(testProjectDir.root, "build/site/main.js").bytes == ungzippedBytes(new File(testProjectDir.root, "build/site/main.js.gz"))
+    }
+
+    def "build fails if webpack config file is missing"() {
+        given:
+        buildFile << """
+plugins {
+  id 'com.timgroup.webpack'
+}
+"""
+
+        testProjectDir.newFolder("src", "main", "javascript")
+        testProjectDir.newFile("package.json") << """
+{
+  "dependencies": {
+    "webpack": "3.6.0"
+  }
+}
+"""
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments("assemble")
+            .withPluginClasspath()
+            .buildAndFail()
+
+        then:
+        result.task(":webpack").outcome == TaskOutcome.FAILED
+    }
+
+    def "task uses alternative configuration file when specified"() {
+        given:
+        buildFile << """
+plugins {
+  id 'com.timgroup.webpack'
+}
+
+webpack {
+  configFile "webpack.alt.config.js"
+}
+"""
+
+        testProjectDir.newFolder("src", "main", "javascript")
+        testProjectDir.newFile("package.json") << """
+{
+  "dependencies": {
+    "webpack": "3.6.0"
+  }
+}
+"""
+        testProjectDir.newFile("webpack.alt.config.js") << """
+var webpack = require("webpack");
+var path = require('path');
+function relative(suffix) {
+    return path.resolve(__dirname, suffix);
+}
+module.exports = {
+  context: relative("src/main/javascript"),
+  output: {
+    filename: "[name].js",
+    path: relative("build/site")
+  },
+  entry: "./init"
+};
+"""
+        testProjectDir.newFile("src/main/javascript/init.js") << """
+// this is init.js
+"""
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments("assemble")
+            .withPluginClasspath()
+            .build()
+
+        then:
+        result.task(":webpack").outcome == TaskOutcome.SUCCESS
+    }
+}
