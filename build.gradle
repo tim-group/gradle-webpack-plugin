@@ -37,10 +37,14 @@ publishing {
             }
         }
     }
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            artifact(sourcesJar)
+}
+
+model {
+    publishing {
+        publications {
+            pluginMaven {
+                artifact sourcesJar
+            }
         }
     }
 }
