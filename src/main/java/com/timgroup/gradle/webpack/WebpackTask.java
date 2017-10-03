@@ -83,7 +83,7 @@ public class WebpackTask extends DefaultTask {
         args.addAll(options);
         args.addAll(Arrays.asList("--config", configFile.toString()));
         execAction.setArgs(args);
-        execAction.setEnvironment(Collections.singletonMap("NODE_ENV", "production"));
+        execAction.environment("NODE_ENV", "production");
         execAction.execute();
         gzipResources();
         writeResourceManifest();
