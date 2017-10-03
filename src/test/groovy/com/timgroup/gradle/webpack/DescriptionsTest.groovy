@@ -15,7 +15,7 @@ class DescriptionsTest extends Specification {
         buildFile = testProjectDir.newFile('build.gradle')
     }
 
-    def "runs Mocha tests and produces JUnit-style output"() {
+    def "tasks show up in 'gradle tasks' output"() {
         given:
         buildFile << """
 plugins {
