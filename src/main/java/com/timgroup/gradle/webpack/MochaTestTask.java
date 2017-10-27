@@ -67,10 +67,9 @@ public class MochaTestTask extends DefaultTask {
     public void runTests() {
         ExecAction execAction = getExecActionFactory().newExecAction();
         Map<String, String> environment = new LinkedHashMap<>();
-        environment.put("JUNIT_REPORT_PATH", testOutput.toString());
-        environment.put("JUNIT_REPORT_STACK", "1");
         execAction.setExecutable("node_modules/mocha/bin/mocha");
-        execAction.setEnvironment(environment);
+        execAction.environment("JUNIT_REPORT_PATH", testOutput.toString());
+        execAction.environment("JUNIT_REPORT_STACK", "1");
         execAction.setArgs(Arrays.asList("--reporter", "mocha-jenkins-reporter", "--opts", mochaOptionsFile, "--recursive", testFiles));
         execAction.execute();
     }
