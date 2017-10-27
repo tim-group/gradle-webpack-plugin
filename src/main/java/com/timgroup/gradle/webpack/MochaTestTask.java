@@ -10,6 +10,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.internal.ExecAction;
 import org.gradle.process.internal.ExecActionFactory;
@@ -29,6 +30,7 @@ public class MochaTestTask extends DefaultTask {
         this.mainFiles = getProject().file(mainFiles);
     }
 
+    @SkipWhenEmpty
     @InputDirectory
     public File getTestFiles() {
         return testFiles;

@@ -113,4 +113,75 @@ describe("a thing", () => {
         new File(testProjectDir.root, "build/test-results/mochaTest/test-reports.xml").text.contains("failures=\"1\"")
         new File(testProjectDir.root, "build/test-results/mochaTest/test-reports.xml").text.contains("true must be equivalent to false")
     }
+
+    def "skips running tests if source directory does not exist"() {
+        given:
+        buildFile << """
+plugins {
+  id 'com.timgroup.webpack'
+}
+"""
+
+        testProjectDir.newFolder("src", "main", "javascript")
+
+        testProjectDir.newFile("package.json") << """
+{
+  "dependencies": {
+    "mocha": "2.3.2",
+    "mocha-jenkins-reporter": "0.1.9",
+    "must": "0.13.1"
+  }
+}
+"""
+        testProjectDir.newFile("mocha.opts") << """
+"""
+        testProjectDir.newFile("src/main/javascript/Thing.js") << """
+"""
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments("check")
+                .withPluginClasspath()
+                .build()
+
+        then:
+        result.task(":mochaTest").outcome == TaskOutcome.NO_SOURCE
+    }
+
+    def "skips running tests if source directory contains no files"() {
+        given:
+        buildFile << """
+plugins {
+  id 'com.timgroup.webpack'
+}
+"""
+
+        testProjectDir.newFolder("src", "main", "javascript")
+        testProjectDir.newFolder("src", "test", "javascript")
+
+        testProjectDir.newFile("package.json") << """
+{
+  "dependencies": {
+    "mocha": "2.3.2",
+    "mocha-jenkins-reporter": "0.1.9",
+    "must": "0.13.1"
+  }
+}
+"""
+        testProjectDir.newFile("mocha.opts") << """
+"""
+        testProjectDir.newFile("src/main/javascript/Thing.js") << """
+"""
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments("check")
+                .withPluginClasspath()
+                .build()
+
+        then:
+        result.task(":mochaTest").outcome == TaskOutcome.NO_SOURCE
+    }
 }
