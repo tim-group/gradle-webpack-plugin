@@ -34,6 +34,7 @@ public class WebpackTask extends DefaultTask {
     private File output;
     private List<String> options;
     private boolean generateManifest = true;
+    private boolean gzipResources = true;
 
     @Inject
     protected ExecActionFactory getExecActionFactory() {
@@ -84,6 +85,14 @@ public class WebpackTask extends DefaultTask {
         this.generateManifest = generateManifest;
     }
 
+    public boolean isGzipResources() {
+        return gzipResources;
+    }
+
+    public void setGzipResources(boolean gzipResources) {
+        this.gzipResources = gzipResources;
+    }
+
     @TaskAction
     public void runWebpack() {
         ExecAction execAction = getExecActionFactory().newExecAction();
@@ -94,7 +103,8 @@ public class WebpackTask extends DefaultTask {
         execAction.setArgs(args);
         execAction.environment("NODE_ENV", "production");
         execAction.execute();
-        gzipResources();
+        if (gzipResources)
+            gzipResources();
         if (generateManifest)
             writeResourceManifest();
     }
