@@ -35,6 +35,7 @@ public class WebpackTask extends DefaultTask {
     private List<String> options;
     private boolean generateManifest = true;
     private boolean gzipResources = true;
+    private String manifestDigest = "SHA-256";
 
     @Inject
     protected ExecActionFactory getExecActionFactory() {
@@ -93,6 +94,14 @@ public class WebpackTask extends DefaultTask {
         this.gzipResources = gzipResources;
     }
 
+    public String getManifestDigest() {
+        return manifestDigest;
+    }
+
+    public void setManifestDigest(String manifestDigest) {
+        this.manifestDigest = manifestDigest;
+    }
+
     @TaskAction
     public void runWebpack() {
         ExecAction execAction = getExecActionFactory().newExecAction();
@@ -133,9 +142,9 @@ public class WebpackTask extends DefaultTask {
     private void writeResourceManifest() {
         MessageDigest sha1;
         try {
-            sha1 = MessageDigest.getInstance("SHA-1");
+            sha1 = MessageDigest.getInstance(manifestDigest);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Unable to get SHA-1 MessageDigest", e);
+            throw new RuntimeException("Unable to get " + manifestDigest + " MessageDigest", e);
         }
         StringBuilder manifest = new StringBuilder();
         ConfigurableFileTree fileTree = getProject().fileTree(output);

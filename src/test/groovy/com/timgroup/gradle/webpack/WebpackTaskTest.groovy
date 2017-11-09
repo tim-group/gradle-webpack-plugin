@@ -25,7 +25,7 @@ class WebpackTaskTest extends Specification {
         return new GZIPInputStream(new FileInputStream(file)).bytes
     }
 
-    def "compiles javascript files with webpack, compresses outputs and produces manifest"() {
+    def "compiles javascript files with webpack, compresses outputs and produces manifest with SHA-256 digests"() {
         given:
         buildFile << """
 plugins {
@@ -70,7 +70,61 @@ module.exports = {
         then:
         result.task(":webpack").outcome == TaskOutcome.SUCCESS
         filesIn(new File(testProjectDir.root, "build/site")) == ["main.js", "main.js.map", "main.js.gz", "main.js.map.gz", ".MANIFEST"] as Set
-        new File(testProjectDir.root, "build/site/.MANIFEST").text.contains(" main.js ")
+        (new File(testProjectDir.root, "build/site/.MANIFEST").text =~ /(?m)^[0-9a-f]{64} main.js \d+ \d+$/).find()
+        new File(testProjectDir.root, "build/site/main.js").bytes == ungzippedBytes(new File(testProjectDir.root, "build/site/main.js.gz"))
+    }
+
+
+    def "manifest digest can be specified"() {
+        given:
+        buildFile << """
+plugins {
+  id 'com.timgroup.webpack'
+}
+
+webpack {
+  manifestDigest = "SHA-1"
+}
+"""
+
+        testProjectDir.newFolder("src", "main", "javascript")
+        testProjectDir.newFile("package.json") << """
+{
+  "dependencies": {
+    "webpack": "3.6.0"
+  }
+}
+"""
+        testProjectDir.newFile("webpack.config.js") << """
+var webpack = require("webpack");
+var path = require('path');
+function relative(suffix) {
+    return path.resolve(__dirname, suffix);
+}
+module.exports = {
+  context: relative("src/main/javascript"),
+  output: {
+    filename: "[name].js",
+    path: relative("build/site")
+  },
+  entry: "./init"
+};
+"""
+        testProjectDir.newFile("src/main/javascript/init.js") << """
+// this is init.js
+"""
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments("assemble")
+            .withPluginClasspath()
+            .build()
+
+        then:
+        result.task(":webpack").outcome == TaskOutcome.SUCCESS
+        filesIn(new File(testProjectDir.root, "build/site")) == ["main.js", "main.js.map", "main.js.gz", "main.js.map.gz", ".MANIFEST"] as Set
+        (new File(testProjectDir.root, "build/site/.MANIFEST").text =~ /(?m)^[0-9a-f]{40} main.js \d+ \d+$/).find()
         new File(testProjectDir.root, "build/site/main.js").bytes == ungzippedBytes(new File(testProjectDir.root, "build/site/main.js.gz"))
     }
 
