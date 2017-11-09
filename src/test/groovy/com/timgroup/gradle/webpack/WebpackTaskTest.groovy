@@ -74,6 +74,57 @@ module.exports = {
         new File(testProjectDir.root, "build/site/main.js").bytes == ungzippedBytes(new File(testProjectDir.root, "build/site/main.js.gz"))
     }
 
+    def "manifest generation can be disabled"() {
+        given:
+        buildFile << """
+plugins {
+  id 'com.timgroup.webpack'
+}
+
+webpack {
+  generateManifest = false
+}
+"""
+
+        testProjectDir.newFolder("src", "main", "javascript")
+        testProjectDir.newFile("package.json") << """
+{
+  "dependencies": {
+    "webpack": "3.6.0"
+  }
+}
+"""
+        testProjectDir.newFile("webpack.config.js") << """
+var webpack = require("webpack");
+var path = require('path');
+function relative(suffix) {
+    return path.resolve(__dirname, suffix);
+}
+module.exports = {
+  context: relative("src/main/javascript"),
+  output: {
+    filename: "[name].js",
+    path: relative("build/site")
+  },
+  entry: "./init"
+};
+"""
+        testProjectDir.newFile("src/main/javascript/init.js") << """
+// this is init.js
+"""
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments("assemble")
+            .withPluginClasspath()
+            .build()
+
+        then:
+        result.task(":webpack").outcome == TaskOutcome.SUCCESS
+        filesIn(new File(testProjectDir.root, "build/site")) == ["main.js", "main.js.map", "main.js.gz", "main.js.map.gz"] as Set
+    }
+
     def "build fails if webpack config file is missing"() {
         given:
         buildFile << """
