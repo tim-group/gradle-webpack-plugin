@@ -29,10 +29,13 @@ gradlePlugin {
 }
 
 pluginBundle {
+    website = "http://www.timgroup.com/"
+    vcsUrl = "https://github.com/tim-group/gradle-webpack-plugin"
+    description = "Build Javascript sources with Webpack and test with Mocha"
     plugins {
         webpack {
             id = "com.timgroup.webpack"
-            displayName = "Build Javascript sources with Webpack and test with Mocha"
+            displayName = "Webpack / Mocha plugin"
             tags = ["webpack", "mocha", "nodejs"]
         }
     }
