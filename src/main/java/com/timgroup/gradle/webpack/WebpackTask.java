@@ -1,5 +1,16 @@
 package com.timgroup.gradle.webpack;
 
+import org.gradle.api.DefaultTask;
+import org.gradle.api.file.ConfigurableFileTree;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputDirectory;
+import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.internal.ExecAction;
+import org.gradle.process.internal.ExecActionFactory;
+
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,17 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import javax.inject.Inject;
-
-import org.gradle.api.DefaultTask;
-import org.gradle.api.file.ConfigurableFileTree;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputDirectory;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.internal.ExecAction;
-import org.gradle.process.internal.ExecActionFactory;
 
 public class WebpackTask extends DefaultTask {
     private File sources;
@@ -78,6 +78,7 @@ public class WebpackTask extends DefaultTask {
         this.output = getProject().file(output);
     }
 
+    @Input
     public boolean getGenerateManifest() {
         return generateManifest;
     }
@@ -86,7 +87,8 @@ public class WebpackTask extends DefaultTask {
         this.generateManifest = generateManifest;
     }
 
-    public boolean isGzipResources() {
+    @Input
+    public boolean getGzipResources() {
         return gzipResources;
     }
 
@@ -94,6 +96,7 @@ public class WebpackTask extends DefaultTask {
         this.gzipResources = gzipResources;
     }
 
+    @Input
     public String getManifestDigest() {
         return manifestDigest;
     }
