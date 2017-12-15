@@ -9,8 +9,8 @@ ext {
     buildNumber = System.getenv("ORIGINAL_BUILD_NUMBER") ?: System.getenv("BUILD_NUMBER")
 }
 
-group 'com.timgroup'
-if (buildNumber) version '1.0.' + buildNumber
+group = 'com.timgroup'
+if (buildNumber) version = '1.0.' + buildNumber
 
 repositories {
     maven {
