@@ -14,8 +14,8 @@ if (buildNumber) version '1.0.' + buildNumber
 
 repositories {
     maven {
-        name "nexus"
-        url "${repoUrl}/groups/public"
+        name = "timgroup"
+        url = "${repoUrl}/groups/public"
     }
 }
 
