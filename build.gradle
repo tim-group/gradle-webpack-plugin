@@ -2,6 +2,7 @@ plugins {
     id 'java-gradle-plugin'
     id 'groovy'
     id 'maven-publish'
+    id "com.gradle.plugin-publish" version "0.9.9"
 }
 
 ext {
@@ -27,10 +28,21 @@ gradlePlugin {
     }
 }
 
+pluginBundle {
+    plugins {
+        webpack {
+            id = "com.timgroup.webpack"
+            displayName = "Build Javascript sources with Webpack and test with Mocha"
+            tags = ["webpack", "mocha", "nodejs"]
+        }
+    }
+}
+
 publishing {
     repositories {
         maven {
-            url "${project.repoUrl}/repositories/yd-release-candidates"
+            name = "timgroup"
+            url = "${project.repoUrl}/repositories/yd-release-candidates"
             credentials {
                 username = project.repoUsername
                 password = project.repoPassword
