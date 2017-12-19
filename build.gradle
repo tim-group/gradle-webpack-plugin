@@ -7,10 +7,12 @@ plugins {
 
 ext {
     buildNumber = System.getenv("ORIGINAL_BUILD_NUMBER") ?: System.getenv("BUILD_NUMBER")
+    githubUrl = "https://github.com/tim-group/gradle-webpack-plugin"
 }
 
 group = 'com.timgroup'
 if (buildNumber) version = '1.0.' + buildNumber
+description = "Build Javascript sources with Webpack and test with Mocha"
 
 repositories {
     maven {
@@ -33,9 +35,9 @@ gradlePlugin {
 }
 
 pluginBundle {
-    website = "http://www.timgroup.com/"
-    vcsUrl = "https://github.com/tim-group/gradle-webpack-plugin"
-    description = "Build Javascript sources with Webpack and test with Mocha"
+    website = githubUrl
+    vcsUrl = githubUrl
+    description = project.description
     plugins {
         webpack {
             id = "com.timgroup.webpack"
