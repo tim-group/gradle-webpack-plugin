@@ -1,9 +1,0 @@
-pluginManagement {
-    repositories {
-        maven {
-            url = "${repoUrl}/groups/public"
-        }
-    }
-}
-
-rootProject.name = "gradle-webpack-plugin"
