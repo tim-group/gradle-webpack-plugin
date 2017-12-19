@@ -1,6 +1,8 @@
 Webpack plugin
 ==============
 
+[![Build Status](https://travis-ci.org/tim-group/gradle-webpack-plugin.svg?branch=master)](https://travis-ci.org/tim-group/gradle-webpack-plugin)
+
 Publishing
 ----------
 

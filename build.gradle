@@ -16,9 +16,16 @@ if (buildNumber) version = '1.0.' + buildNumber
 description = "Build Javascript sources with Webpack and test with Mocha"
 
 repositories {
-    maven {
-        name = "timgroup"
-        url = "${repoUrl}/groups/public"
+    mavenCentral()
+}
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+
+    testCompile "junit:junit:4.12"
+    testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
+        exclude module: 'groovy-all'
     }
 }
 
@@ -50,12 +57,14 @@ pluginBundle {
 
 publishing {
     repositories {
-        maven {
-            name = "timgroup"
-            url = "${project.repoUrl}/repositories/yd-release-candidates"
-            credentials {
-                username = project.repoUsername
-                password = project.repoPassword
+        if (project.hasProperty("repoUrl")) {
+            maven {
+                name = "timgroup"
+                url = "${project.repoUrl}/repositories/yd-release-candidates"
+                credentials {
+                    username = project.repoUsername
+                    password = project.repoPassword
+                }
             }
         }
     }
@@ -77,13 +86,3 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 }
 
 assemble.dependsOn(sourcesJar)
-
-dependencies {
-    compile gradleApi()
-    compile localGroovy()
-
-    testCompile "junit:junit:4.12"
-    testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
-        exclude module: 'groovy-all'
-    }
-}
