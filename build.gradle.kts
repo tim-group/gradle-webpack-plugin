@@ -81,4 +81,9 @@ publishing {
             }
         }
     }
+    (publications) {
+        "pluginMaven"(MavenPublication::class) {
+            artifact(tasks["sourcesJar"])
+        }
+    }
 }
