@@ -28,6 +28,7 @@ class WebpackPlugin implements Plugin<Project> {
         webpackTask.manifestDigest = "SHA-256"
         webpackTask.generateManifest = true
         webpackTask.gzipResources = true
+        webpackTask.nodeVersion = extension.nodeVersion
         webpackTask.group = "compile"
         webpackTask.description = "Runs Webpack to produce bundle files"
 
@@ -39,6 +40,7 @@ class WebpackPlugin implements Plugin<Project> {
         mochaTestTask.testFiles = "src/test/javascript"
         mochaTestTask.testOutput = "build/test-results/mochaTest/test-reports.xml"
         mochaTestTask.mochaOptionsFile = "mocha.opts"
+        mochaTestTask.nodeVersion = extension.nodeVersion
         mochaTestTask.group = "verification"
         mochaTestTask.description = "Runs the Mocha (JavaScript) tests"
 
