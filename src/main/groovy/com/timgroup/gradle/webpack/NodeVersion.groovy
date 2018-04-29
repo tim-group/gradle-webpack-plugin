@@ -55,6 +55,10 @@ class NodeVersion {
         if (version == null) {
             throw new IllegalStateException("No version specified, so installation base is unavailable")
         }
+
+        def nvmInstallDir = new File(System.getProperty("user.home"), ".nvm/versions/node/v$version")
+        if (nvmInstallDir.directory && new File(nvmInstallDir, "bin/node").executable) return nvmInstallDir
+
         return new File(getInstallationsHome(), "node-v${version}-${architecture}")
     }
 
