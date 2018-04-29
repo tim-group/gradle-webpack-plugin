@@ -8,11 +8,14 @@ import javax.annotation.Nonnull
 class WebpackPlugin implements Plugin<Project> {
     @Override
     void apply(@Nonnull Project project) {
+        def extension = project.extensions.create("webpackPlugin", WebpackPluginExtension, project)
+
         project.pluginManager.apply("base")
 
         project.tasks.getByName("clean").delete("node_modules")
 
         def npmInstallTask = project.tasks.create("npmInstall", NpmInstallTask)
+        npmInstallTask.nodeVersion = extension.nodeVersion
         npmInstallTask.group = "compile"
         npmInstallTask.description = "Runs NPM to fetch javascript packages into node_modules"
 

@@ -1,6 +1,7 @@
 package com.timgroup.gradle.webpack
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.process.internal.ExecActionFactory
 
@@ -17,6 +18,8 @@ class MochaTestTask extends DefaultTask implements VerificationTask {
     def testOutput
     @Input
     boolean ignoreFailures
+    @Input @Optional
+    final Property<String> nodeVersion = project.objects.property(String)
 
     File getMainFiles() {
         return project.file(mainFiles)
@@ -39,6 +42,9 @@ class MochaTestTask extends DefaultTask implements VerificationTask {
 
     @TaskAction
     void runTests() {
+        if (nodeVersion.isPresent()) {
+            throw new UnsupportedOperationException("Use node version ${nodeVersion.get()} specifically")
+        }
         def execAction = execActionFactory.newExecAction()
         execAction.executable = "node_modules/mocha/bin/mocha"
         execAction.environment("JUNIT_REPORT_PATH", testOutput.toString())

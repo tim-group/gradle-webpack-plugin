@@ -47,6 +47,38 @@ plugins {
         filesIn(new File(testProjectDir.root, "node_modules")) == [] as Set
     }
 
+    def "uses specific node version"() {
+        given:
+        buildFile << """
+plugins {
+  id 'com.timgroup.webpack'
+}
+
+webpackPlugin {
+  nodeVersion = "8.11.1"
+}
+"""
+
+        testProjectDir.newFile("package.json") << """
+{
+  "dependencies": {
+  }
+}
+"""
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments("npmInstall")
+            .withPluginClasspath()
+            .build()
+
+        then:
+        result.task(":npmInstall").outcome == TaskOutcome.SUCCESS
+        new File(testProjectDir.root, "node_modules").isDirectory()
+        filesIn(new File(testProjectDir.root, "node_modules")) == [] as Set
+    }
+
     def "build fails if package file is missing"() {
         given:
         buildFile << """

@@ -1,6 +1,7 @@
 package com.timgroup.gradle.webpack
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.process.internal.ExecActionFactory
 
@@ -24,6 +25,8 @@ class WebpackTask extends DefaultTask {
     boolean gzipResources
     @Input
     String manifestDigest
+    @Input @Optional
+    final Property<String> nodeVersion = project.objects.property(String)
 
     File getSources() {
         return project.file(sources)
@@ -43,6 +46,9 @@ class WebpackTask extends DefaultTask {
 
     @TaskAction
     void runWebpack() {
+        if (nodeVersion.isPresent()) {
+            throw new UnsupportedOperationException("Use node version ${nodeVersion.get()} specifically")
+        }
         def execAction = execActionFactory.newExecAction()
         execAction.executable = "node_modules/.bin/webpack"
         execAction.args = options + ["--config", configFile.toString()]
