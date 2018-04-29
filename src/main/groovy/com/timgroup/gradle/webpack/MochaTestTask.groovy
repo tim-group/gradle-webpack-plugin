@@ -8,27 +8,27 @@ import javax.inject.Inject
 
 class MochaTestTask extends DefaultTask implements VerificationTask {
     @InputDirectory
-    File mainFiles
+    def mainFiles
     @InputDirectory @SkipWhenEmpty
-    File testFiles
+    def testFiles
     @InputFile
-    File mochaOptionsFile
+    def mochaOptionsFile
     @OutputFile
-    File testOutput
+    def testOutput
     @Input
     boolean ignoreFailures
 
-    void setMainFiles(Object obj) {
-        mainFiles = project.file(obj)
+    File getMainFiles() {
+        return project.file(mainFiles)
     }
-    void setTestFiles(Object obj) {
-        testFiles = project.file(obj)
+    File getTestFiles() {
+        return project.file(testFiles)
     }
-    void setMochaOptionsFile(Object obj) {
-        mochaOptionsFile = project.file(obj)
+    File getMochaOptionsFile() {
+        return project.file(mochaOptionsFile)
     }
-    void setTestOutput(Object obj) {
-        testOutput = project.file(obj)
+    File getTestOutput() {
+        return project.file(testOutput)
     }
 
     @SuppressWarnings("GrMethodMayBeStatic")

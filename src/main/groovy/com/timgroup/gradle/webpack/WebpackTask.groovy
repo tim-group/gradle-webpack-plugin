@@ -11,13 +11,13 @@ import java.security.MessageDigest
 
 class WebpackTask extends DefaultTask {
     @InputDirectory
-    File sources
+    def sources
     @InputFile
-    File configFile
+    def configFile
     @Input
     List<String> options
     @OutputDirectory
-    File output
+    def output
     @Input
     boolean generateManifest
     @Input
@@ -25,14 +25,14 @@ class WebpackTask extends DefaultTask {
     @Input
     String manifestDigest
 
-    void setSources(Object obj) {
-        sources = project.file(obj)
+    File getSources() {
+        return project.file(sources)
     }
-    void setConfigFile(Object obj) {
-        configFile = project.file(obj)
+    File getConfigFile() {
+        return project.file(configFile)
     }
-    void setOutput(Object obj) {
-        output = project.file(obj)
+    File getOutput() {
+        return project.file(output)
     }
 
     @SuppressWarnings("GrMethodMayBeStatic")
@@ -80,7 +80,7 @@ class WebpackTask extends DefaultTask {
             excludes = [".MANIFEST"]
         }
         fileTree.forEach { file ->
-            def relativeName = file.toString().substring(output.toString().length() + 1)
+            def relativeName = file.toString().substring(getOutput().toString().length() + 1)
             file.withInputStream { input ->
                 def buf = new byte[8192]
                 int got
@@ -94,7 +94,7 @@ class WebpackTask extends DefaultTask {
             def fileSize = fileAttributes.size()
             manifest.append("$digest $relativeName $fileSize ${lastModifiedTime.toInstant().toEpochMilli()}\n")
         }
-        def manifestPath = output.toPath().resolve(".MANIFEST")
+        def manifestPath = getOutput().toPath().resolve(".MANIFEST")
         project.logger.info("Writing $manifestPath")
         manifestPath.toFile().setText(manifest.toString(), "UTF-8")
     }

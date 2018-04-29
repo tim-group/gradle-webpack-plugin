@@ -18,9 +18,9 @@ class WebpackPlugin implements Plugin<Project> {
 
         def webpackTask = project.tasks.create("webpack", WebpackTask)
         webpackTask.dependsOn.add(npmInstallTask)
-        webpackTask.output = project.file("build/site")
-        webpackTask.configFile = project.file("webpack.config.js")
-        webpackTask.sources = project.file("src/main/javascript")
+        webpackTask.output = "build/site"
+        webpackTask.configFile = "webpack.config.js"
+        webpackTask.sources = "src/main/javascript"
         webpackTask.options = ["-p", "--devtool", "source-map"]
         webpackTask.manifestDigest = "SHA-256"
         webpackTask.generateManifest = true
@@ -32,10 +32,10 @@ class WebpackPlugin implements Plugin<Project> {
 
         def mochaTestTask = project.tasks.create("mochaTest", MochaTestTask)
         mochaTestTask.dependsOn(npmInstallTask)
-        mochaTestTask.mainFiles = project.file("src/main/javascript")
-        mochaTestTask.testFiles = project.file("src/test/javascript")
-        mochaTestTask.testOutput = project.file("build/test-results/mochaTest/test-reports.xml")
-        mochaTestTask.mochaOptionsFile = project.file("mocha.opts")
+        mochaTestTask.mainFiles = "src/main/javascript"
+        mochaTestTask.testFiles = "src/test/javascript"
+        mochaTestTask.testOutput = "build/test-results/mochaTest/test-reports.xml"
+        mochaTestTask.mochaOptionsFile = "mocha.opts"
         mochaTestTask.group = "verification"
         mochaTestTask.description = "Runs the Mocha (JavaScript) tests"
 

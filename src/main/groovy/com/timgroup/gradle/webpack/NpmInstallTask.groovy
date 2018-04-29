@@ -10,15 +10,15 @@ import javax.inject.Inject
 
 class NpmInstallTask extends DefaultTask {
     @InputFile
-    File packageFile = project.file("package.json")
+    def packageFile = "package.json"
     @OutputDirectory
-    File getNodeModulesDirectory = project.file("node_modules")
+    def nodeModulesDirectory = "node_modules"
 
-    void setPackageFile(Object obj) {
-        packageFile = project.file(obj)
+    File getPackageFile() {
+        return project.file(packageFile)
     }
-    void setNodeModulesDirectory(Object obj) {
-        nodeModulesDirectory = project.file(obj)
+    File getNodeModulesDirectory() {
+        return project.file(nodeModulesDirectory)
     }
 
     @SuppressWarnings("GrMethodMayBeStatic")
