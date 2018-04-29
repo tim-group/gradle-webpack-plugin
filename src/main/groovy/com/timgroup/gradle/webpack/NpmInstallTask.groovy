@@ -30,11 +30,8 @@ class NpmInstallTask extends DefaultTask {
 
     @TaskAction
     void runNPM() {
-        if (nodeVersion.isPresent()) {
-            throw new UnsupportedOperationException("Use node version ${nodeVersion.get()} specifically")
-        }
         def execAction = execActionFactory.newExecAction()
-        execAction.executable = "npm"
+        execAction.executable = new NodeVersion(nodeVersion, project, execActionFactory).npmExecutable
         execAction.args = ["install"]
         execAction.execute()
     }

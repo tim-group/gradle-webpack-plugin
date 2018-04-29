@@ -42,14 +42,11 @@ class MochaTestTask extends DefaultTask implements VerificationTask {
 
     @TaskAction
     void runTests() {
-        if (nodeVersion.isPresent()) {
-            throw new UnsupportedOperationException("Use node version ${nodeVersion.get()} specifically")
-        }
         def execAction = execActionFactory.newExecAction()
-        execAction.executable = "node_modules/mocha/bin/mocha"
+        execAction.executable = new NodeVersion(nodeVersion, project, execActionFactory).nodeExecutable
         execAction.environment("JUNIT_REPORT_PATH", testOutput.toString())
         execAction.environment("JUNIT_REPORT_STACK", "1")
-        execAction.args = ["--reporter", "mocha-jenkins-reporter", "--opts", mochaOptionsFile.toString(), "--recursive", testFiles.toString()]
+        execAction.args = ["node_modules/mocha/bin/mocha", "--reporter", "mocha-jenkins-reporter", "--opts", mochaOptionsFile.toString(), "--recursive", testFiles.toString()]
         execAction.ignoreExitValue = ignoreFailures
         execAction.execute()
     }

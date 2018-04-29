@@ -46,12 +46,9 @@ class WebpackTask extends DefaultTask {
 
     @TaskAction
     void runWebpack() {
-        if (nodeVersion.isPresent()) {
-            throw new UnsupportedOperationException("Use node version ${nodeVersion.get()} specifically")
-        }
         def execAction = execActionFactory.newExecAction()
-        execAction.executable = "node_modules/.bin/webpack"
-        execAction.args = options + ["--config", configFile.toString()]
+        execAction.executable = new NodeVersion(nodeVersion, project, execActionFactory).nodeExecutable
+        execAction.args = ["node_modules/.bin/webpack"] + options + ["--config", configFile.toString()]
         execAction.environment("NODE_ENV", "production")
         execAction.execute()
 

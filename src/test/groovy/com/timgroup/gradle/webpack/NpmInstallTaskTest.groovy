@@ -4,7 +4,6 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import spock.lang.Ignore
 import spock.lang.Specification
 
 class NpmInstallTaskTest extends Specification {
@@ -48,7 +47,6 @@ plugins {
         filesIn(new File(testProjectDir.root, "node_modules")) == [] as Set
     }
 
-    @Ignore
     def "uses specific node version"() {
         given:
         buildFile << """
@@ -71,7 +69,7 @@ webpackPlugin {
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withArguments("npmInstall")
+            .withArguments("-s", "npmInstall")
             .withPluginClasspath()
             .build()
 
