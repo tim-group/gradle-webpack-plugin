@@ -6,9 +6,9 @@ plugins {
     id("com.timgroup.jarmangit") version "1.1.86"
 }
 
-val repoUrl by project
-val repoUsername by project
-val repoPassword by project
+val repoUrl: String? by project
+val repoUsername: String? by project
+val repoPassword: String? by project
 
 val buildNumber: String? by extra { System.getenv("ORIGINAL_BUILD_NUMBER") ?: System.getenv("BUILD_NUMBER") }
 val githubUrl by extra("https://github.com/tim-group/gradle-webpack-plugin")
