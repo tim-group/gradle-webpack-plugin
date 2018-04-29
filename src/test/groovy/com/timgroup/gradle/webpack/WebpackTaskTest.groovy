@@ -154,7 +154,7 @@ plugins {
 }
 
 webpack {
-  configFile "webpack.alt.config.js"
+  configFile = "webpack.alt.config.js"
 }
 """
         typicalJavascriptSetup()
