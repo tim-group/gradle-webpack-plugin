@@ -57,7 +57,7 @@ class NodeVersion {
         }
 
         def nvmInstallDir = new File(System.getProperty("user.home"), ".nvm/versions/node/v$version")
-        if (nvmInstallDir.directory && new File(nvmInstallDir, "bin/node").executable) return nvmInstallDir
+        if (nvmInstallDir.directory && new File(nvmInstallDir, "bin/node").canExecute()) return nvmInstallDir
 
         return new File(getInstallationsHome(), "node-v${version}-${architecture}")
     }
