@@ -19,11 +19,14 @@ description = "Build Javascript sources with Webpack and test with Mocha"
 
 repositories {
     mavenCentral()
+    jcenter()
+    gradlePluginPortal()
 }
 
 dependencies {
     compile(gradleApi())
     compile(localGroovy())
+    compile("com.moowork.gradle:gradle-node-plugin:1.2.0")
 
     testCompile("junit:junit:4.12")
     testCompile("org.spockframework:spock-core:1.0-groovy-2.4") {

@@ -11,16 +11,12 @@ class WebpackPlugin implements Plugin<Project> {
         def extension = project.extensions.create("webpackPlugin", WebpackPluginExtension, project)
 
         project.pluginManager.apply("base")
+        project.pluginManager.apply("com.moowork.node")
 
         project.tasks.getByName("clean").delete("node_modules")
 
-        def npmInstallTask = project.tasks.create("npmInstall", NpmInstallTask)
-        npmInstallTask.nodeVersion = extension.nodeVersion
-        npmInstallTask.group = "compile"
-        npmInstallTask.description = "Runs NPM to fetch javascript packages into node_modules"
-
         def webpackTask = project.tasks.create("webpack", WebpackTask)
-        webpackTask.dependsOn.add(npmInstallTask)
+        webpackTask.dependsOn.add("npmInstall")
         webpackTask.output = "build/site"
         webpackTask.configFile = "webpack.config.js"
         webpackTask.sources = "src/main/javascript"
@@ -35,7 +31,7 @@ class WebpackPlugin implements Plugin<Project> {
         project.tasks.getByName("assemble").dependsOn(webpackTask)
 
         def mochaTestTask = project.tasks.create("mochaTest", MochaTestTask)
-        mochaTestTask.dependsOn(npmInstallTask)
+        mochaTestTask.dependsOn("npmInstall")
         mochaTestTask.mainFiles = "src/main/javascript"
         mochaTestTask.testFiles = "src/test/javascript"
         mochaTestTask.testOutput = "build/test-results/mochaTest/test-reports.xml"
