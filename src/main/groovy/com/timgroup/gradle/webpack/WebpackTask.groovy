@@ -1,7 +1,7 @@
 package com.timgroup.gradle.webpack
 
+import com.moowork.gradle.node.exec.NodeExecRunner
 import org.gradle.api.DefaultTask
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.process.internal.ExecActionFactory
 
@@ -25,8 +25,6 @@ class WebpackTask extends DefaultTask {
     boolean gzipResources
     @Input
     String manifestDigest
-    @Input @Optional
-    final Property<String> nodeVersion = project.objects.property(String)
 
     File getSources() {
         return project.file(sources)
@@ -46,11 +44,10 @@ class WebpackTask extends DefaultTask {
 
     @TaskAction
     void runWebpack() {
-        def execAction = execActionFactory.newExecAction()
-        execAction.executable = new NodeVersion(nodeVersion, project, execActionFactory).nodeExecutable
-        execAction.args = ["node_modules/.bin/webpack"] + options + ["--config", configFile.toString()]
-        execAction.environment("NODE_ENV", "production")
-        execAction.execute()
+        def runner = new NodeExecRunner( this.project )
+        runner.arguments = ["node_modules/.bin/webpack"] + options + ["--config", configFile.toString()]
+        runner.environment.put("NODE_ENV", "production")
+        runner.execute()
 
         if (gzipResources)
             doGzipResources()

@@ -24,7 +24,6 @@ class WebpackPlugin implements Plugin<Project> {
         webpackTask.manifestDigest = "SHA-256"
         webpackTask.generateManifest = true
         webpackTask.gzipResources = true
-        webpackTask.nodeVersion = extension.nodeVersion
         webpackTask.group = "compile"
         webpackTask.description = "Runs Webpack to produce bundle files"
 
