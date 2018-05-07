@@ -36,7 +36,6 @@ class WebpackPlugin implements Plugin<Project> {
         mochaTestTask.testFiles = "src/test/javascript"
         mochaTestTask.testOutput = "build/test-results/mochaTest/test-reports.xml"
         mochaTestTask.mochaOptionsFile = "mocha.opts"
-        mochaTestTask.nodeVersion = extension.nodeVersion
         mochaTestTask.group = "verification"
         mochaTestTask.description = "Runs the Mocha (JavaScript) tests"
 
