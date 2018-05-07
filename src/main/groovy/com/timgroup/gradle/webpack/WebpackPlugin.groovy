@@ -16,7 +16,6 @@ class WebpackPlugin implements Plugin<Project> {
         project.tasks.getByName("clean").delete("node_modules")
 
         def webpackTask = project.tasks.create("webpack", WebpackTask)
-        webpackTask.dependsOn.add("npmInstall")
         webpackTask.output = "build/site"
         webpackTask.configFile = "webpack.config.js"
         webpackTask.sources = "src/main/javascript"
@@ -30,7 +29,6 @@ class WebpackPlugin implements Plugin<Project> {
         project.tasks.getByName("assemble").dependsOn(webpackTask)
 
         def mochaTestTask = project.tasks.create("mochaTest", MochaTestTask)
-        mochaTestTask.dependsOn("npmInstall")
         mochaTestTask.mainFiles = "src/main/javascript"
         mochaTestTask.testFiles = "src/test/javascript"
         mochaTestTask.testOutput = "build/test-results/mochaTest/test-reports.xml"
@@ -39,5 +37,17 @@ class WebpackPlugin implements Plugin<Project> {
         mochaTestTask.description = "Runs the Mocha (JavaScript) tests"
 
         project.tasks.getByName("check").dependsOn(mochaTestTask)
+
+        project.afterEvaluate {
+            def installTask
+            if (project.file("yarn.lock").exists()) {
+                installTask = "yarn"
+            }
+            else {
+                installTask = "npmInstall"
+            }
+            webpackTask.dependsOn.add(installTask)
+            mochaTestTask.dependsOn.add(installTask)
+        }
     }
 }
