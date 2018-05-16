@@ -1,12 +1,22 @@
 package com.timgroup.gradle.webpack
 
+import com.moowork.gradle.node.NodeExtension
 import org.gradle.api.Project
-import org.gradle.api.provider.Property
 
 class WebpackPluginExtension {
-    final Property<String> nodeVersion
+    private final Project project
+
+    String getNodeVersion() {
+        return null
+    }
+
+    void setNodeVersion(String nodeVersion) {
+        def nodeExtension = NodeExtension.get(project)
+        nodeExtension.version = nodeVersion
+        nodeExtension.download = true
+    }
 
     WebpackPluginExtension(Project project) {
-        nodeVersion = project.objects.property(String)
+        this.project = project
     }
 }

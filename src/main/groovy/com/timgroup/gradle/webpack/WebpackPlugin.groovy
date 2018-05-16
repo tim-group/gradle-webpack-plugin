@@ -1,5 +1,6 @@
 package com.timgroup.gradle.webpack
 
+import com.moowork.gradle.node.NodeExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -38,6 +39,8 @@ class WebpackPlugin implements Plugin<Project> {
 
         project.tasks.getByName("check").dependsOn(mochaTestTask)
 
+        def copyNvmInstall = project.tasks.create("copyNvmInstall", CopyNvmInstallTask)
+
         project.afterEvaluate {
             def installTask
             if (project.file("yarn.lock").exists()) {
@@ -48,6 +51,17 @@ class WebpackPlugin implements Plugin<Project> {
             }
             webpackTask.dependsOn.add(installTask)
             mochaTestTask.dependsOn.add(installTask)
+
+            def nodeExtension = NodeExtension.get(project)
+            if (nodeExtension.download) {
+                def nodeSetup = project.tasks.getByName("nodeSetup")
+                def nvmDir = new File("${System.getProperty("user.home")}/.nvm/versions/node/v${nodeExtension.version}")
+
+                nodeSetup.dependsOn(copyNvmInstall)
+
+                nodeSetup.enabled = !nvmDir.directory
+                copyNvmInstall.enabled = nvmDir.directory
+            }
         }
     }
 }
