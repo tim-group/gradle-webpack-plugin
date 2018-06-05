@@ -4,9 +4,6 @@ import com.moowork.gradle.node.exec.NodeExecRunner
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.*
 import org.gradle.process.ExecResult
-import org.gradle.process.internal.ExecActionFactory
-
-import javax.inject.Inject
 
 class MochaTestTask extends DefaultTask implements VerificationTask {
     @InputDirectory
@@ -33,12 +30,6 @@ class MochaTestTask extends DefaultTask implements VerificationTask {
     }
     File getTestOutput() {
         return project.file(testOutput)
-    }
-
-    @SuppressWarnings("GrMethodMayBeStatic")
-    @Inject
-    protected ExecActionFactory getExecActionFactory() {
-        throw new UnsupportedOperationException()
     }
 
     @TaskAction
