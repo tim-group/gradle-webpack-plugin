@@ -3,7 +3,9 @@ package com.timgroup.gradle.webpack
 import com.moowork.gradle.node.exec.NodeExecRunner
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.*
+import org.gradle.process.internal.ExecActionFactory
 
+import javax.inject.Inject
 import java.nio.file.Files
 import java.nio.file.attribute.BasicFileAttributeView
 import java.security.MessageDigest
@@ -32,6 +34,12 @@ class WebpackTask extends DefaultTask {
     }
     File getOutput() {
         return project.file(output)
+    }
+
+    @SuppressWarnings("GrMethodMayBeStatic")
+    @Inject
+    protected ExecActionFactory getExecActionFactory() {
+        throw new UnsupportedOperationException()
     }
 
     @TaskAction
