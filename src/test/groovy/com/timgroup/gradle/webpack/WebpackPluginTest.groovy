@@ -23,6 +23,7 @@ plugins {
 }
 
 tasks.webpack.enabled = false
+tasks.npmInstall.enabled = false
 """
 
         when:
@@ -34,7 +35,7 @@ tasks.webpack.enabled = false
 
         then:
         result.task(":webpack")?.outcome == TaskOutcome.SKIPPED
-        result.task(":npmInstall")?.outcome == TaskOutcome.SUCCESS
+        result.task(":npmInstall")?.outcome == TaskOutcome.SKIPPED
         result.task(":yarn")?.outcome == null
     }
 
@@ -45,11 +46,8 @@ plugins {
   id 'com.timgroup.webpack'
 }
 
-node {
-  download = true
-}
-
 tasks.webpack.enabled = false
+tasks.yarn.enabled = false
 """
         testProjectDir.newFile("yarn.lock") << """
 """
@@ -64,6 +62,6 @@ tasks.webpack.enabled = false
         then:
         result.task(":webpack")?.outcome == TaskOutcome.SKIPPED
         result.task(":npmInstall")?.outcome == null
-        result.task(":yarn")?.outcome == TaskOutcome.SUCCESS
+        result.task(":yarn")?.outcome == TaskOutcome.SKIPPED
     }
 }
