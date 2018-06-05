@@ -45,6 +45,10 @@ plugins {
   id 'com.timgroup.webpack'
 }
 
+node {
+  download = true
+}
+
 tasks.webpack.enabled = false
 """
         testProjectDir.newFile("yarn.lock") << """
