@@ -67,7 +67,7 @@ pluginBundle {
         "webpack" {
             id = "com.timgroup.webpack"
             displayName = "Webpack / Mocha plugin"
-            tags = setOf("webpack", "mocha", "nodejs")
+            tags = setOf("webpack", "mocha", "jest", "nodejs")
         }
     }
 }
