@@ -84,8 +84,8 @@ publishing {
             }
         }
     }
-    (publications) {
-        "pluginMaven"(MavenPublication::class) {
+    publications {
+        create<MavenPublication>("pluginMaven") {
             artifact(tasks["sourcesJar"])
         }
     }
