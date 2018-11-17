@@ -1,6 +1,7 @@
 package com.timgroup.gradle.webpack
 
 import com.moowork.gradle.node.NodeExtension
+import groovy.json.JsonSlurper
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -37,7 +38,12 @@ class WebpackPlugin implements Plugin<Project> {
         mochaTestTask.group = "verification"
         mochaTestTask.description = "Runs the Mocha (JavaScript) tests"
 
-        project.tasks.getByName("check").dependsOn(mochaTestTask)
+        def jestTestTask = project.tasks.create("jestTest", JestTestTask)
+        jestTestTask.mainFiles = "src/main/javascript"
+        jestTestTask.testFiles = "src/test/javascript"
+        jestTestTask.testOutput = "build/test-results/jestTest/test-reports.xml"
+        jestTestTask.group = "verification"
+        jestTestTask.description = "Runs the Jest (JavaScript) tests"
 
         def copyNvmInstall = project.tasks.create("copyNvmInstall", CopyNvmInstallTask)
 
@@ -49,8 +55,17 @@ class WebpackPlugin implements Plugin<Project> {
             else {
                 installTask = "npmInstall"
             }
-            webpackTask.dependsOn.add(installTask)
             mochaTestTask.dependsOn.add(installTask)
+            jestTestTask.dependsOn.add(installTask)
+            webpackTask.dependsOn.add(installTask)
+
+            def packageJson = new JsonSlurper().parse(project.file("package.json"))
+            if ((packageJson.devDependencies && packageJson.devDependencies.mocha) || (packageJson.dependencies && packageJson.dependencies.mocha)) {
+                project.tasks.getByName("check").dependsOn(mochaTestTask)
+            }
+            if ((packageJson.devDependencies && packageJson.devDependencies.jest) || (packageJson.dependencies && packageJson.dependencies.jest)) {
+                project.tasks.getByName("check").dependsOn(jestTestTask)
+            }
 
             def nodeExtension = NodeExtension.get(project)
             if (nodeExtension.download) {

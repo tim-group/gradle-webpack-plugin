@@ -25,6 +25,10 @@ plugins {
 tasks.webpack.enabled = false
 tasks.npmInstall.enabled = false
 """
+        testProjectDir.newFile("package.json") << """
+{
+}
+"""
 
         when:
         def result = GradleRunner.create()
@@ -48,6 +52,10 @@ plugins {
 
 tasks.webpack.enabled = false
 tasks.yarn.enabled = false
+"""
+        testProjectDir.newFile("package.json") << """
+{
+}
 """
         testProjectDir.newFile("yarn.lock") << """
 """

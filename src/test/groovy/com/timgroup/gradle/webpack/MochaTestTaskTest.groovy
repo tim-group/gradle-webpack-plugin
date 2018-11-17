@@ -28,7 +28,7 @@ plugins {
 
         testProjectDir.newFile("package.json") << """
 {
-  "dependencies": {
+  "devDependencies": {
     "mocha": "2.3.2",
     "mocha-jenkins-reporter": "0.1.9",
     "must": "0.13.1"
@@ -77,7 +77,7 @@ plugins {
 
         testProjectDir.newFile("package.json") << """
 {
-  "dependencies": {
+  "devDependencies": {
     "mocha": "2.3.2",
     "mocha-jenkins-reporter": "0.1.9",
     "must": "0.13.1"
@@ -131,7 +131,7 @@ mochaTest {
 
         testProjectDir.newFile("package.json") << """
 {
-  "dependencies": {
+  "devDependencies": {
     "mocha": "2.3.2",
     "mocha-jenkins-reporter": "0.1.9",
     "must": "0.13.1"
@@ -180,7 +180,7 @@ plugins {
 
         testProjectDir.newFile("package.json") << """
 {
-  "dependencies": {
+  "devDependencies": {
     "mocha": "2.3.2",
     "mocha-jenkins-reporter": "0.1.9",
     "must": "0.13.1"
@@ -216,7 +216,7 @@ plugins {
 
         testProjectDir.newFile("package.json") << """
 {
-  "dependencies": {
+  "devDependencies": {
     "mocha": "2.3.2",
     "mocha-jenkins-reporter": "0.1.9",
     "must": "0.13.1"

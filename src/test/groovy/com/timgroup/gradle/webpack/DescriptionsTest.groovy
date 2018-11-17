@@ -22,6 +22,14 @@ plugins {
   id 'com.timgroup.webpack'
 }
 """
+        testProjectDir.newFile("package.json") << """
+{
+  "devDependencies": {
+    "jest": "23.6.0",
+    "jest-junit": "5.2.0"
+  }
+}
+"""
 
         when:
         def result = GradleRunner.create()
@@ -35,5 +43,6 @@ plugins {
         result.output.contains("npmInstall")
         result.output.contains("webpack")
         result.output.contains("mochaTest")
+        result.output.contains("jestTest")
     }
 }
