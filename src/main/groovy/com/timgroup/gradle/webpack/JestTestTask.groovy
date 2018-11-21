@@ -32,7 +32,7 @@ class JestTestTask extends DefaultTask implements VerificationTask {
     @TaskAction
     void runTests() {
         def runner = new NodeExecRunner( this.project )
-        def execArgs = ["node_modules/jest/bin/jest", "--ci", "--reporters=default", "--reporters=jest-junit", "--", testFiles.toString()]
+        def execArgs = ["node_modules/jest/bin/jest", "--ci", "--reporters=default", "--reporters=jest-junit", "--roots=" + testFiles.toString()]
         runner.arguments = execArgs
         runner.environment.put("JEST_JUNIT_OUTPUT", testOutput.toString())
         if (suiteName != null)
