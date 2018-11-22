@@ -41,7 +41,7 @@ tasks {
 
     val sourcesJar by creating(Jar::class) {
         classifier = "sources"
-        from(java.sourceSets["main"].allSource)
+        from(sourceSets["main"].allSource)
     }
 
     "assemble" {
@@ -50,8 +50,8 @@ tasks {
 }
 
 gradlePlugin {
-    (plugins) {
-        "webpack" {
+    plugins {
+        create("webpack") {
             id = "com.timgroup.webpack"
             implementationClass = "com.timgroup.gradle.webpack.WebpackPlugin"
         }
@@ -64,7 +64,7 @@ pluginBundle {
     description = project.description
 
     (plugins) {
-        "webpack" {
+        create("webpack") {
             id = "com.timgroup.webpack"
             displayName = "Webpack / Mocha plugin"
             tags = setOf("webpack", "mocha", "jest", "nodejs")
