@@ -31,6 +31,8 @@ plugins {
 }
 """
 
+        testProjectDir.newFile("package-lock.json") << "{}"
+
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)

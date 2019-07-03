@@ -35,6 +35,7 @@ plugins {
   }
 }
 """
+        testProjectDir.newFile("package-lock.json") << "{}"
         testProjectDir.newFile("mocha.opts") << """
 """
         testProjectDir.newFile("src/main/javascript/Thing.js") << """
@@ -84,6 +85,7 @@ plugins {
   }
 }
 """
+        testProjectDir.newFile("package-lock.json") << "{}"
         testProjectDir.newFile("mocha.opts") << """
 """
         testProjectDir.newFile("src/main/javascript/Thing.js") << """
@@ -138,6 +140,7 @@ mochaTest {
   }
 }
 """
+        testProjectDir.newFile("package-lock.json") << "{}"
         testProjectDir.newFile("mocha.opts") << """
 """
         testProjectDir.newFile("src/main/javascript/Thing.js") << """
@@ -187,6 +190,7 @@ plugins {
   }
 }
 """
+        testProjectDir.newFile("package-lock.json") << "{}"
         testProjectDir.newFile("mocha.opts") << """
 """
         testProjectDir.newFile("src/main/javascript/Thing.js") << """
@@ -223,6 +227,7 @@ plugins {
   }
 }
 """
+        testProjectDir.newFile("package-lock.json") << "{}"
         testProjectDir.newFile("mocha.opts") << """
 """
         testProjectDir.newFile("src/main/javascript/Thing.js") << """

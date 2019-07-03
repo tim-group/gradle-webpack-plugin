@@ -34,6 +34,9 @@ plugins {
   }
 }
 """
+
+        testProjectDir.newFile("package-lock.json") << "{}"
+
         testProjectDir.newFile("src/main/javascript/Thing.js") << """
 """
         testProjectDir.newFile("src/test/javascript/Thing.test.js") << """

@@ -26,7 +26,7 @@ repositories {
 dependencies {
     compile(gradleApi())
     compile(localGroovy())
-    compile("com.moowork.gradle:gradle-node-plugin:1.2.0")
+    compile("com.moowork.gradle:gradle-node-plugin:1.3.1")
 
     testCompile("junit:junit:4.12")
     testCompile("org.spockframework:spock-core:1.0-groovy-2.4") {

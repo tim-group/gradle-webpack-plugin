@@ -29,6 +29,7 @@ tasks.npmInstall.enabled = false
 {
 }
 """
+        testProjectDir.newFile("package-lock.json") << "{}"
 
         when:
         def result = GradleRunner.create()
@@ -57,6 +58,7 @@ tasks.yarn.enabled = false
 {
 }
 """
+        testProjectDir.newFile("package-lock.json") << "{}"
         testProjectDir.newFile("yarn.lock") << """
 """
 

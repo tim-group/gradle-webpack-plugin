@@ -180,6 +180,7 @@ webpack {
   }
 }
 """
+        testProjectDir.newFile("package-lock.json") << "{}"
         testProjectDir.newFile("webpack.config.js") << """
 var webpack = require("webpack");
 var path = require('path');
