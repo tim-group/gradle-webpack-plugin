@@ -15,7 +15,9 @@ class WebpackPlugin implements Plugin<Project> {
         project.pluginManager.apply("base")
         project.pluginManager.apply("com.moowork.node")
 
-        project.tasks.getByName("clean").delete("node_modules")
+        project.tasks.named("clean").configure { task ->
+            task.delete("node_modules");
+        };
 
         def webpackTask = project.tasks.create("webpack", WebpackTask)
         webpackTask.output = "build/site"
