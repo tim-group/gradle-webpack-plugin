@@ -17,67 +17,74 @@ class WebpackPlugin implements Plugin<Project> {
 
         project.tasks.named("clean").configure { task ->
             task.delete("node_modules");
-        };
+        }
 
-        def webpackTask = project.tasks.create("webpack", WebpackTask)
-        webpackTask.output = "build/site"
-        webpackTask.configFile = "webpack.config.js"
-        webpackTask.sources = "src/main/javascript"
-        webpackTask.options = ["-p", "--devtool", "source-map"]
-        webpackTask.manifestDigest = "SHA-256"
-        webpackTask.generateManifest = true
-        webpackTask.gzipResources = true
-        webpackTask.group = "compile"
-        webpackTask.description = "Runs Webpack to produce bundle files"
+        def webpackTaskProvider = project.tasks.register("webpack", WebpackTask) { webpackTask ->
+            webpackTask.output = "build/site"
+            webpackTask.configFile = "webpack.config.js"
+            webpackTask.sources = "src/main/javascript"
+            webpackTask.options = ["-p", "--devtool", "source-map"]
+            webpackTask.manifestDigest = "SHA-256"
+            webpackTask.generateManifest = true
+            webpackTask.gzipResources = true
+            webpackTask.group = "compile"
+            webpackTask.description = "Runs Webpack to produce bundle files"
+        }
 
-        project.tasks.getByName("assemble").dependsOn(webpackTask)
+        project.tasks.named("assemble").configure { it.dependsOn(webpackTaskProvider) }
 
-        def mochaTestTask = project.tasks.create("mochaTest", MochaTestTask)
-        mochaTestTask.mainFiles = "src/main/javascript"
-        mochaTestTask.testFiles = "src/test/javascript"
-        mochaTestTask.testOutput = "build/test-results/mochaTest/test-reports.xml"
-        mochaTestTask.mochaOptionsFile = "mocha.opts"
-        mochaTestTask.group = "verification"
-        mochaTestTask.description = "Runs the Mocha (JavaScript) tests"
+        def mochaTestTaskProvider = project.tasks.register("mochaTest", MochaTestTask) { mochaTestTask ->
+            mochaTestTask.mainFiles = "src/main/javascript"
+            mochaTestTask.testFiles = "src/test/javascript"
+            mochaTestTask.testOutput = "build/test-results/mochaTest/test-reports.xml"
+            mochaTestTask.mochaOptionsFile = "mocha.opts"
+            mochaTestTask.group = "verification"
+            mochaTestTask.description = "Runs the Mocha (JavaScript) tests"
+        }
 
-        def jestTestTask = project.tasks.create("jestTest", JestTestTask)
-        jestTestTask.mainFiles = "src/main/javascript"
-        jestTestTask.testFiles = "src/test/javascript"
-        jestTestTask.testOutput = "build/test-results/jestTest/test-reports.xml"
-        jestTestTask.group = "verification"
-        jestTestTask.description = "Runs the Jest (JavaScript) tests"
+        def jestTestTaskProvider = project.tasks.register("jestTest", JestTestTask) { jestTestTask ->
+            jestTestTask.mainFiles = "src/main/javascript"
+            jestTestTask.testFiles = "src/test/javascript"
+            jestTestTask.testOutput = "build/test-results/jestTest/test-reports.xml"
+            jestTestTask.group = "verification"
+            jestTestTask.description = "Runs the Jest (JavaScript) tests"
+        }
 
-        def copyNvmInstall = project.tasks.create("copyNvmInstall", CopyNvmInstallTask)
+        def copyNvmInstallTaskProvider = project.tasks.register("copyNvmInstall", CopyNvmInstallTask)
 
         project.afterEvaluate {
-            def installTask
+            String installTaskName
             if (project.file("yarn.lock").exists()) {
-                installTask = "yarn"
+                installTaskName = "yarn"
             }
             else {
-                installTask = "npmInstall"
+                installTaskName = "npmInstall"
             }
-            mochaTestTask.dependsOn.add(installTask)
-            jestTestTask.dependsOn.add(installTask)
-            webpackTask.dependsOn.add(installTask)
+            mochaTestTaskProvider.configure { it.dependsOn(installTaskName) }
+            jestTestTaskProvider.configure { it.dependsOn(installTaskName) }
+            webpackTaskProvider.configure { it.dependsOn(installTaskName) }
 
             def packageJson = new JsonSlurper().parse(project.file("package.json"))
             if ((packageJson.devDependencies && packageJson.devDependencies.mocha) || (packageJson.dependencies && packageJson.dependencies.mocha)) {
-                project.tasks.getByName("check").dependsOn(mochaTestTask)
+                project.tasks.named("check").configure { it.dependsOn(mochaTestTaskProvider) }
             }
             if ((packageJson.devDependencies && packageJson.devDependencies.jest) || (packageJson.dependencies && packageJson.dependencies.jest)) {
-                project.tasks.getByName("check").dependsOn(jestTestTask)
+                project.tasks.named("check").configure { it.dependsOn(jestTestTaskProvider) }
             }
 
             def nodeExtension = NodeExtension.get(project)
             if (nodeExtension.download) {
-                def nodeSetup = project.tasks.getByName("nodeSetup")
+                def nodeSetupTaskProvider = project.tasks.named("nodeSetup")
                 def nvmDir = new File("${System.getProperty("user.home")}/.nvm/versions/node/v${nodeExtension.version}")
 
-                nodeSetup.dependsOn(copyNvmInstall)
+                nodeSetupTaskProvider.configure {
+                    it.dependsOn(copyNvmInstallTaskProvider)
+                    it.enabled = !nvmDir.directory
+                }
 
-                nodeSetup.enabled = !nvmDir.directory
-                copyNvmInstall.enabled = nvmDir.directory
+                copyNvmInstallTaskProvider.configure {
+                    it.enabled = nvmDir.directory
+                }
             }
         }
     }
