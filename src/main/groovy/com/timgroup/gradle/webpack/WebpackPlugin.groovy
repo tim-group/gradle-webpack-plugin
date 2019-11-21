@@ -13,7 +13,7 @@ class WebpackPlugin implements Plugin<Project> {
         def extension = project.extensions.create("webpackPlugin", WebpackPluginExtension, project)
 
         project.pluginManager.apply("base")
-        project.pluginManager.apply("com.moowork.node")
+        project.pluginManager.apply("com.github.node-gradle.node")
 
         project.tasks.named("clean").configure { task ->
             task.delete("node_modules");
