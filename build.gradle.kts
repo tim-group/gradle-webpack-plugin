@@ -2,6 +2,7 @@ plugins {
     `java-gradle-plugin`
     groovy
     `maven-publish`
+    `kotlin-dsl`
     id("com.gradle.plugin-publish") version "0.9.9"
     id("com.timgroup.jarmangit") version "1.1.86"
 }
@@ -34,10 +35,8 @@ dependencies {
     compile(localGroovy())
     compile("com.github.node-gradle:gradle-node-plugin:2.2.0")
 
-    testCompile("junit:junit:4.12")
-    testCompile("org.spockframework:spock-core:1.3-groovy-2.5") {
-        exclude(module = "groovy-all")
-    }
+    testImplementation("junit:junit:4.12")
+    testImplementation("com.natpryce:hamkrest:1.7.0.0")
 }
 
 tasks {
