@@ -31,9 +31,9 @@ java {
 }
 
 dependencies {
-    compile(gradleApi())
-    compile(localGroovy())
-    compile("com.github.node-gradle:gradle-node-plugin:2.2.0")
+    implementation(gradleApi())
+    implementation(localGroovy())
+    implementation("com.github.node-gradle:gradle-node-plugin:2.2.0")
 
     testImplementation("junit:junit:4.12")
     testImplementation("com.natpryce:hamkrest:1.7.0.0")
