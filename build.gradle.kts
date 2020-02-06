@@ -23,6 +23,12 @@ repositories {
     gradlePluginPortal()
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    withSourcesJar()
+}
+
 dependencies {
     compile(gradleApi())
     compile(localGroovy())
@@ -37,15 +43,6 @@ dependencies {
 tasks {
     "test"(Test::class) {
         maxParallelForks = 4
-    }
-
-    val sourcesJar by creating(Jar::class) {
-        classifier = "sources"
-        from(sourceSets["main"].allSource)
-    }
-
-    "assemble" {
-        dependsOn(sourcesJar)
     }
 }
 
@@ -82,11 +79,6 @@ publishing {
                     password = repoPassword.toString()
                 }
             }
-        }
-    }
-    publications {
-        create<MavenPublication>("pluginMaven") {
-            artifact(tasks["sourcesJar"])
         }
     }
 }
