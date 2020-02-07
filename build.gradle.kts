@@ -37,6 +37,12 @@ dependencies {
     testImplementation("com.natpryce:hamkrest:1.7.0.0")
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    withSourcesJar()
+}
+
 tasks {
     "test"(Test::class) {
         maxParallelForks = 4
