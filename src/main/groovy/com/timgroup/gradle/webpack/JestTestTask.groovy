@@ -7,27 +7,17 @@ import org.gradle.process.ExecResult
 
 class JestTestTask extends DefaultTask implements VerificationTask {
     @InputDirectory
-    def mainFiles
+    File mainFiles
     @InputDirectory @SkipWhenEmpty
-    def testFiles
+    File testFiles
     @OutputFile
-    def testOutput
+    File testOutput
     @Input
     boolean ignoreFailures
     @Input
     String suiteName = "jest tests"
     @Internal
     ExecResult result
-
-    File getMainFiles() {
-        return project.file(mainFiles)
-    }
-    File getTestFiles() {
-        return project.file(testFiles)
-    }
-    File getTestOutput() {
-        return project.file(testOutput)
-    }
 
     @TaskAction
     void runTests() {

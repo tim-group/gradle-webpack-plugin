@@ -7,30 +7,17 @@ import org.gradle.process.ExecResult
 
 class MochaTestTask extends DefaultTask implements VerificationTask {
     @InputDirectory
-    def mainFiles
+    File mainFiles
     @InputDirectory @SkipWhenEmpty
-    def testFiles
+    File testFiles
     @InputFile
-    def mochaOptionsFile
+    File mochaOptionsFile
     @OutputFile
-    def testOutput
+    File testOutput
     @Input
     boolean ignoreFailures
     @Internal
     ExecResult result
-
-    File getMainFiles() {
-        return project.file(mainFiles)
-    }
-    File getTestFiles() {
-        return project.file(testFiles)
-    }
-    File getMochaOptionsFile() {
-        return project.file(mochaOptionsFile)
-    }
-    File getTestOutput() {
-        return project.file(testOutput)
-    }
 
     @TaskAction
     void runTests() {

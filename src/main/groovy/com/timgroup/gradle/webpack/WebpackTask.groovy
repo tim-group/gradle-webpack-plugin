@@ -12,29 +12,19 @@ import java.security.MessageDigest
 
 class WebpackTask extends DefaultTask {
     @InputDirectory
-    def sources
+    File sources
     @InputFile
-    def configFile
+    String configFile
     @Input
     List<String> options
     @OutputDirectory
-    def output
+    File output
     @Input
     boolean generateManifest
     @Input
     boolean gzipResources
     @Input
     String manifestDigest
-
-    File getSources() {
-        return project.file(sources)
-    }
-    File getConfigFile() {
-        return project.file(configFile)
-    }
-    File getOutput() {
-        return project.file(output)
-    }
 
     @SuppressWarnings("GrMethodMayBeStatic")
     @Inject
