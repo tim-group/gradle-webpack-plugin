@@ -1,6 +1,5 @@
 package com.timgroup.gradle.webpack
 
-import com.moowork.gradle.node.exec.NodeExecRunner
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
@@ -29,7 +28,7 @@ open class MochaTestTask : DefaultTask() {
 
     @TaskAction
     fun runTests() {
-        val runner = NodeExecRunner(project).apply {
+        result = project.execNode {
             arguments = listOf("node_modules/mocha/bin/mocha",
                     "--reporter=mocha-jenkins-reporter",
                     "--opts",
@@ -42,7 +41,5 @@ open class MochaTestTask : DefaultTask() {
 
             ignoreExitValue = ignoreFailures
         }
-
-        result = runner.execute()
     }
 }
