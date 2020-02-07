@@ -7,26 +7,30 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.internal.ExecActionFactory
-import java.io.File
 import java.nio.file.Files
 import java.security.MessageDigest
 import javax.inject.Inject
 
 abstract class WebpackTask : DefaultTask() {
+    init {
+        group = "compile"
+        description = "Runs Webpack to produce bundle files"
+    }
+
     @get:InputDirectory
-    var sources: File? = null
+    val sources = project.objects.directoryProperty()
     @get:InputFile
-    var configFile: String? = null
+    val configFile = project.objects.fileProperty()
     @get:Input
-    var options: List<String> = mutableListOf()
+    val options = project.objects.listProperty(String::class.java).convention(listOf())
     @get:OutputDirectory
-    var output: File? = null
+    val output = project.objects.fileProperty()
     @get:Input
-    var generateManifest: Boolean = true
+    val generateManifest = project.objects.property(Boolean::class.java).convention(true)
     @get:Input
-    var gzipResources: Boolean = true
+    val gzipResources = project.objects.property(Boolean::class.java).convention(true)
     @get:Input
-    var manifestDigest: String = "SHA256"
+    val manifestDigest = project.objects.property(String::class.java).convention("SHA256")
 
     @get:Inject
     protected abstract val execActionFactory: ExecActionFactory
@@ -36,21 +40,21 @@ abstract class WebpackTask : DefaultTask() {
         project.execNode {
             arguments = mutableListOf<String>().apply {
                 add("node_modules/.bin/webpack")
-                addAll(options)
+                addAll(options.get())
                 add("--config")
-                add(project.file(configFile!!).toString())
+                add(configFile.get().asFile.toString())
             }
             putenv("NODE_ENV", "production")
         }
 
-        if (gzipResources)
+        if (gzipResources.get())
             doGzipResources()
-        if (generateManifest)
+        if (generateManifest.get())
             doGenerateManifest()
     }
 
     private fun doGzipResources() {
-        val fileTree = project.fileTree(output!!) {
+        val fileTree = project.fileTree(output.get()) {
             setIncludes(setOf("**/*.html", "**/*.js", "**/*.map"))
         }
         fileTree.forEach { file ->
@@ -68,20 +72,20 @@ abstract class WebpackTask : DefaultTask() {
     }
 
     private fun doGenerateManifest() {
-        val sha1 = MessageDigest.getInstance(manifestDigest)
+        val sha1 = MessageDigest.getInstance(manifestDigest.get())
         val manifest = StringBuilder()
-        val fileTree = project.fileTree(output!!) {
+        val fileTree = project.fileTree(output.get()) {
             exclude(".MANIFEST")
         }
         fileTree.forEach { file ->
-            val relativeName = file.toString().substring(output.toString().length + 1)
+            val relativeName = file.toString().substring(output.get().asFile.toString().length + 1)
 
             val digest = sha1.digest().encodeHex()
             val lastModifiedTime = file.lastModified()
             val fileSize = file.length()
             manifest.append("$digest $relativeName $fileSize ${lastModifiedTime}\n")
         }
-        val manifestFile = output!!.resolve(".MANIFEST")
+        val manifestFile = output.get().asFile.resolve(".MANIFEST")
         project.logger.info("Writing $manifestFile")
         manifestFile.writeText(manifest.toString())
     }

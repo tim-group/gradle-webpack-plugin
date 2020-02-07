@@ -9,22 +9,26 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecResult
-import java.io.File
 
 open class MochaTestTask : DefaultTask() {
+    init {
+        group = "verification"
+        description = "Runs ths Mocha (JavaScript) tests"
+    }
+
     @get:InputDirectory
-    var mainFiles: File? = null
+    val mainFiles = project.objects.directoryProperty()
     @get:InputDirectory
     @get:SkipWhenEmpty
-    var testFiles: File? = null
+    val testFiles = project.objects.directoryProperty()
     @get:InputFile
-    var mochaOptionsFile: File? = null
+    val mochaOptionsFile = project.objects.fileProperty()
     @get:OutputFile
-    var testOutput: File? = null
+    val testOutput = project.objects.fileProperty()
     @get:Internal
     var result: ExecResult? = null
     @get:Input
-    var ignoreFailures: Boolean = false
+    val ignoreFailures = project.objects.property(Boolean::class.java).convention(false)
 
     @TaskAction
     fun runTests() {
@@ -32,14 +36,14 @@ open class MochaTestTask : DefaultTask() {
             arguments = listOf("node_modules/mocha/bin/mocha",
                     "--reporter=mocha-jenkins-reporter",
                     "--opts",
-                    mochaOptionsFile.toString(),
+                    mochaOptionsFile.get().asFile.toString(),
                     "--recursive",
-                    testFiles.toString())
+                    testFiles.get().asFile.toString())
 
-            putenv("JUNIT_REPORT_PATH", testOutput)
+            putenv("JUNIT_REPORT_PATH", testOutput.get().asFile)
             putenv("JUNIT_REPORT_STACK", "1")
 
-            ignoreExitValue = ignoreFailures
+            ignoreExitValue = ignoreFailures.get()
         }
     }
 }

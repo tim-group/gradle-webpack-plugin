@@ -114,7 +114,7 @@ class WebpackTaskTest {
             }
             
             webpack {
-              configFile = "webpack.alt.config.js"
+              configFile = file("webpack.alt.config.js")
             }
         """.trimIndent())
 

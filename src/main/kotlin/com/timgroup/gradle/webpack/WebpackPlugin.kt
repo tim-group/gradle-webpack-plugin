@@ -26,34 +26,28 @@ open class WebpackPlugin : Plugin<Project> {
             }
 
             val webpack by tasks.registering(WebpackTask::class) {
-                output = file("build/site")
-                configFile = "webpack.config.js"
-                sources = file("src/main/javascript")
-                options = listOf("-p", "--devtool", "source-map")
-                manifestDigest = "SHA-256"
-                generateManifest = true
-                gzipResources = true
-                group = "compile"
-                description = "Runs Webpack to produce bundle files"
+                output.set(file("build/site"))
+                configFile.set(file("webpack.config.js"))
+                sources.set(file("src/main/javascript"))
+                options.set(listOf("-p", "--devtool", "source-map"))
+                manifestDigest.set("SHA-256")
+                generateManifest.set(true)
+                gzipResources.set(true)
             }
 
             assemble.configure { dependsOn(webpack) }
 
             val mochaTest by tasks.registering(MochaTestTask::class) {
-                mainFiles = file("src/main/javascript")
-                testFiles = file("src/test/javascript")
-                testOutput = file("build/test-results/mochaTest/test-reports.xml")
-                mochaOptionsFile = file("mocha.opts")
-                group = "verification"
-                description = "Runs ths Mocha (JavaScript) tests"
+                mainFiles.set(file("src/main/javascript"))
+                testFiles.set(file("src/test/javascript"))
+                testOutput.set(file("build/test-results/mochaTest/test-reports.xml"))
+                mochaOptionsFile.set(file("mocha.opts"))
             }
 
             val jestTest by tasks.registering(JestTestTask::class) {
-                mainFiles = file("src/main/javascript")
-                testFiles = file("src/test/javascript")
-                testOutput = file("build/test-results/jestTest/test-reports.xml")
-                group = "verification"
-                description = "Runs ths Jest (JavaScript) tests"
+                mainFiles.set(file("src/main/javascript"))
+                testFiles.set(file("src/test/javascript"))
+                testOutput.set(file("build/test-results/jestTest/test-reports.xml"))
             }
 
             val copyNvmInstall by tasks.registering(CopyNvmInstallTask::class)
