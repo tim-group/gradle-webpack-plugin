@@ -1,6 +1,5 @@
 plugins {
     `java-gradle-plugin`
-    groovy
     `maven-publish`
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "0.9.9"
@@ -32,7 +31,6 @@ java {
 
 dependencies {
     implementation(gradleApi())
-    implementation(localGroovy())
     implementation("com.github.node-gradle:gradle-node-plugin:2.2.0")
 
     testImplementation("junit:junit:4.12")
@@ -43,17 +41,6 @@ tasks {
     "test"(Test::class) {
         maxParallelForks = 4
     }
-}
-
-tasks.named<AbstractCompile>("compileGroovy") {
-    // Groovy only needs the declared dependencies
-    // (and not longer the output of compileJava)
-    classpath = sourceSets.main.get().compileClasspath
-}
-tasks.named<AbstractCompile>("compileKotlin") {
-    // Java also depends on the result of Groovy compilation
-    // (which automatically makes it depend of compileGroovy)
-    classpath += files(sourceSets.main.get().withConvention(GroovySourceSet::class) { groovy }.classesDirectory)
 }
 
 gradlePlugin {
