@@ -79,8 +79,7 @@ abstract class WebpackTask : DefaultTask() {
         }
         fileTree.forEach { file ->
             val relativeName = file.toString().substring(output.get().asFile.toString().length + 1)
-
-            val digest = sha1.digest().encodeHex()
+            val digest = sha1.digest(file.readBytes()).encodeHex()
             val lastModifiedTime = file.lastModified()
             val fileSize = file.length()
             manifest.append("$digest $relativeName $fileSize ${lastModifiedTime}\n")
