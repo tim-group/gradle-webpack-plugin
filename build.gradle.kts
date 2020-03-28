@@ -52,7 +52,7 @@ gradlePlugin {
             id = "com.timgroup.webpack"
             implementationClass = "com.timgroup.gradle.webpack.WebpackPlugin"
             description = project.description
-	    displayName = "Webpack / Mocha plugin"
+            displayName = "Webpack / Mocha plugin"
         }
     }
 }
