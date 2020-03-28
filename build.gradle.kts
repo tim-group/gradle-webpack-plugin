@@ -51,6 +51,8 @@ gradlePlugin {
         create("webpack") {
             id = "com.timgroup.webpack"
             implementationClass = "com.timgroup.gradle.webpack.WebpackPlugin"
+            description = project.description
+	    displayName = "Webpack / Mocha plugin"
         }
     }
 }
@@ -58,15 +60,7 @@ gradlePlugin {
 pluginBundle {
     website = githubUrl
     vcsUrl = githubUrl
-    description = project.description
-
-    (plugins) {
-        create("webpack") {
-            id = "com.timgroup.webpack"
-            displayName = "Webpack / Mocha plugin"
-            tags = setOf("webpack", "mocha", "jest", "nodejs")
-        }
-    }
+    tags = setOf("webpack", "mocha", "jest", "nodejs")
 }
 
 publishing {
