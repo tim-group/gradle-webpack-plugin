@@ -15,7 +15,7 @@ val githubUrl by extra("https://github.com/tim-group/gradle-webpack-plugin")
 
 group = "com.timgroup"
 if (buildNumber != null) version = "1.0.$buildNumber"
-description = "Build Javascript sources with Webpack and test with Mocha"
+description = "Build Javascript sources with Webpack and test with Mocha / Jest"
 
 repositories {
     mavenCentral()
