@@ -19,7 +19,6 @@ description = "Build Javascript sources with Webpack and test with Mocha / Jest"
 
 repositories {
     mavenCentral()
-    jcenter()
     gradlePluginPortal()
 }
 
