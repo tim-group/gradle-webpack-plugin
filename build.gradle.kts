@@ -31,7 +31,7 @@ java {
 dependencies {
     implementation(gradleApi())
     implementation(localGroovy())
-    implementation("com.github.node-gradle:gradle-node-plugin:2.2.0")
+    implementation("com.github.node-gradle:gradle-node-plugin:3.3.0")
 
     testImplementation("junit:junit:4.13")
     testImplementation("org.spockframework:spock-core:1.3-groovy-2.5") {
