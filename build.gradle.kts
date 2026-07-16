@@ -2,29 +2,30 @@ plugins {
     `java-gradle-plugin`
     groovy
     `maven-publish`
-    id("com.gradle.plugin-publish") version "0.11.0"
-    id("com.timgroup.jarmangit") version "1.1.86"
+    id("com.gradle.plugin-publish") version "2.1.1"
+    id("com.timgroup.jarmangit") version "1.2.195"
 }
 
 val repoUrl: String? by project
 val repoUsername: String? by project
 val repoPassword: String? by project
 
-val buildNumber: String? by extra { System.getenv("ORIGINAL_BUILD_NUMBER") ?: System.getenv("BUILD_NUMBER") }
+val buildNumber = providers.environmentVariable("ORIGINAL_BUILD_NUMBER")
+    .orElse(providers.environmentVariable("BUILD_NUMBER"))
 val githubUrl by extra("https://github.com/tim-group/gradle-webpack-plugin")
 
 group = "com.timgroup"
-if (buildNumber != null) version = "1.0.$buildNumber"
+if (buildNumber.isPresent) version = "1.0.${buildNumber.get()}"
 description = "Build Javascript sources with Webpack and test with Mocha / Jest"
 
 repositories {
     mavenCentral()
-    gradlePluginPortal()
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
     withSourcesJar()
 }
 
@@ -33,15 +34,20 @@ dependencies {
     implementation(localGroovy())
     implementation("com.github.node-gradle:gradle-node-plugin:2.2.0")
 
-    testImplementation("junit:junit:4.13")
-    testImplementation("org.spockframework:spock-core:1.3-groovy-2.5") {
-        exclude(module = "groovy-all")
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.spockframework:spock-core:2.3-groovy-3.0") {
+        exclude(module = "groovy")
     }
 }
 
 tasks {
-    "test"(Test::class) {
-        maxParallelForks = 4
+    withType<JavaCompile>().configureEach {
+        options.encoding = "UTF-8"
+        options.compilerArgs.add("-parameters")
+    }
+
+    withType<Test>().configureEach {
+        useJUnitPlatform()
     }
 }
 
@@ -62,14 +68,33 @@ pluginBundle {
     tags = setOf("webpack", "mocha", "jest", "nodejs")
 }
 
+val nexusRepoUrl = providers.gradleProperty("repoUrl")
+val nexusRepoUsername = providers.gradleProperty("repoUsername")
+val nexusRepoPassword = providers.gradleProperty("repoPassword")
+val codeartifactUrl = providers.environmentVariable("CODEARTIFACT_URL")
+    .orElse(providers.gradleProperty("codeartifact.url"))
+    .orElse("https://timgroup-148217964156.d.codeartifact.eu-west-1.amazonaws.com/maven/jars/")
+val codeartifactToken = providers.environmentVariable("CODEARTIFACT_TOKEN")
+    .orElse(providers.gradleProperty("codeartifact.token"))
+
 publishing {
     repositories {
-        if (project.hasProperty("repoUrl")) {
-            maven("$repoUrl/repositories/yd-release-candidates") {
-                name = "timgroup"
+        if (nexusRepoUrl.isPresent && nexusRepoUsername.isPresent && nexusRepoPassword.isPresent) {
+            maven("${nexusRepoUrl.get()}/repositories/yd-release-candidates") {
+                name = "nexus"
                 credentials {
-                    username = repoUsername.toString()
-                    password = repoPassword.toString()
+                    username = nexusRepoUsername.get()
+                    password = nexusRepoPassword.get()
+                }
+                isAllowInsecureProtocol = true
+            }
+        }
+        if (codeartifactUrl.isPresent && codeartifactToken.isPresent) {
+            maven(url = codeartifactUrl.get()) {
+                name = "codeartifact"
+                credentials {
+                    username = "aws"
+                    password = codeartifactToken.get()
                 }
             }
         }
