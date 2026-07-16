@@ -2,31 +2,28 @@ package com.timgroup.gradle.webpack
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
+
+import java.nio.file.Files
+import java.nio.file.Path
 
 class MochaTestTaskTest extends Specification {
-    @Rule public final TemporaryFolder testProjectDir = new TemporaryFolder()
-
-    File buildFile
-
-    def setup() {
-        buildFile = testProjectDir.newFile('build.gradle')
-    }
+    @TempDir
+    Path testProjectDir
 
     def "runs Mocha tests and produces JUnit-style output"() {
         given:
-        buildFile << """
+        testProjectDir.resolve("build.gradle") << """
 plugins {
   id 'com.timgroup.webpack'
 }
 """
 
-        testProjectDir.newFolder("src", "main", "javascript")
-        testProjectDir.newFolder("src", "test", "javascript")
+        Files.createDirectories(testProjectDir.resolve("src/main/javascript"))
+        Files.createDirectories(testProjectDir.resolve("src/test/javascript"))
 
-        testProjectDir.newFile("package.json") << """
+        testProjectDir.resolve("package.json") << """
 {
   "devDependencies": {
     "mocha": "2.3.2",
@@ -35,12 +32,12 @@ plugins {
   }
 }
 """
-        testProjectDir.newFile("package-lock.json") << "{}"
-        testProjectDir.newFile("mocha.opts") << """
+        testProjectDir.resolve("package-lock.json") << "{}"
+        testProjectDir.resolve("mocha.opts") << """
 """
-        testProjectDir.newFile("src/main/javascript/Thing.js") << """
+        testProjectDir.resolve("src/main/javascript/Thing.js") << """
 """
-        testProjectDir.newFile("src/test/javascript/ThingTest.js") << """
+        testProjectDir.resolve("src/test/javascript/ThingTest.js") << """
 var expect = require("must");
 
 describe("a thing", () => {
@@ -52,31 +49,31 @@ describe("a thing", () => {
 
         when:
         def result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir.toFile())
             .withArguments("check")
             .withPluginClasspath()
             .build()
 
         then:
         result.task(":mochaTest").outcome == TaskOutcome.SUCCESS
-        new File(testProjectDir.root, "build/test-results/mochaTest/test-reports.xml").text.contains("a thing")
-        new File(testProjectDir.root, "build/test-results/mochaTest/test-reports.xml").text.contains("works like this")
-        new File(testProjectDir.root, "build/test-results/mochaTest/test-reports.xml").text.contains("tests=\"1\"")
-        new File(testProjectDir.root, "build/test-results/mochaTest/test-reports.xml").text.contains("failures=\"0\"")
+        testProjectDir.resolve("build/test-results/mochaTest/test-reports.xml").text.contains("a thing")
+        testProjectDir.resolve("build/test-results/mochaTest/test-reports.xml").text.contains("works like this")
+        testProjectDir.resolve("build/test-results/mochaTest/test-reports.xml").text.contains("tests=\"1\"")
+        testProjectDir.resolve("build/test-results/mochaTest/test-reports.xml").text.contains("failures=\"0\"")
     }
 
     def "fails the build if a Mocha test fails, but still produces JUnit output"() {
         given:
-        buildFile << """
+        testProjectDir.resolve("build.gradle") << """
 plugins {
   id 'com.timgroup.webpack'
 }
 """
 
-        testProjectDir.newFolder("src", "main", "javascript")
-        testProjectDir.newFolder("src", "test", "javascript")
+        Files.createDirectories(testProjectDir.resolve("src/main/javascript"))
+        Files.createDirectories(testProjectDir.resolve("src/test/javascript"))
 
-        testProjectDir.newFile("package.json") << """
+        testProjectDir.resolve("package.json") << """
 {
   "devDependencies": {
     "mocha": "2.3.2",
@@ -85,12 +82,12 @@ plugins {
   }
 }
 """
-        testProjectDir.newFile("package-lock.json") << "{}"
-        testProjectDir.newFile("mocha.opts") << """
+        testProjectDir.resolve("package-lock.json") << "{}"
+        testProjectDir.resolve("mocha.opts") << """
 """
-        testProjectDir.newFile("src/main/javascript/Thing.js") << """
+        testProjectDir.resolve("src/main/javascript/Thing.js") << """
 """
-        testProjectDir.newFile("src/test/javascript/ThingTest.js") << """
+        testProjectDir.resolve("src/test/javascript/ThingTest.js") << """
 var expect = require("must");
 
 describe("a thing", () => {
@@ -102,23 +99,23 @@ describe("a thing", () => {
 
         when:
         def result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir.toFile())
             .withArguments("check")
             .withPluginClasspath()
             .buildAndFail()
 
         then:
         result.task(":mochaTest").outcome == TaskOutcome.FAILED
-        new File(testProjectDir.root, "build/test-results/mochaTest/test-reports.xml").text.contains("a thing")
-        new File(testProjectDir.root, "build/test-results/mochaTest/test-reports.xml").text.contains("works like this")
-        new File(testProjectDir.root, "build/test-results/mochaTest/test-reports.xml").text.contains("tests=\"1\"")
-        new File(testProjectDir.root, "build/test-results/mochaTest/test-reports.xml").text.contains("failures=\"1\"")
-        new File(testProjectDir.root, "build/test-results/mochaTest/test-reports.xml").text.contains("true must be equivalent to false")
+        testProjectDir.resolve("build/test-results/mochaTest/test-reports.xml").text.contains("a thing")
+        testProjectDir.resolve("build/test-results/mochaTest/test-reports.xml").text.contains("works like this")
+        testProjectDir.resolve("build/test-results/mochaTest/test-reports.xml").text.contains("tests=\"1\"")
+        testProjectDir.resolve("build/test-results/mochaTest/test-reports.xml").text.contains("failures=\"1\"")
+        testProjectDir.resolve("build/test-results/mochaTest/test-reports.xml").text.contains("true must be equivalent to false")
     }
 
     def "ignores failing tests if so configured"() {
         given:
-        buildFile << """
+        testProjectDir.resolve("build.gradle") << """
 plugins {
   id 'com.timgroup.webpack'
 }
@@ -128,10 +125,10 @@ mochaTest {
 }
 """
 
-        testProjectDir.newFolder("src", "main", "javascript")
-        testProjectDir.newFolder("src", "test", "javascript")
+        Files.createDirectories(testProjectDir.resolve("src/main/javascript"))
+        Files.createDirectories(testProjectDir.resolve("src/test/javascript"))
 
-        testProjectDir.newFile("package.json") << """
+        testProjectDir.resolve("package.json") << """
 {
   "devDependencies": {
     "mocha": "2.3.2",
@@ -140,12 +137,12 @@ mochaTest {
   }
 }
 """
-        testProjectDir.newFile("package-lock.json") << "{}"
-        testProjectDir.newFile("mocha.opts") << """
+        testProjectDir.resolve("package-lock.json") << "{}"
+        testProjectDir.resolve("mocha.opts") << """
 """
-        testProjectDir.newFile("src/main/javascript/Thing.js") << """
+        testProjectDir.resolve("src/main/javascript/Thing.js") << """
 """
-        testProjectDir.newFile("src/test/javascript/ThingTest.js") << """
+        testProjectDir.resolve("src/test/javascript/ThingTest.js") << """
 var expect = require("must");
 
 describe("a thing", () => {
@@ -157,31 +154,31 @@ describe("a thing", () => {
 
         when:
         def result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir.toFile())
             .withArguments("check")
             .withPluginClasspath()
             .build()
 
         then:
         result.task(":mochaTest").outcome == TaskOutcome.SUCCESS
-        new File(testProjectDir.root, "build/test-results/mochaTest/test-reports.xml").text.contains("a thing")
-        new File(testProjectDir.root, "build/test-results/mochaTest/test-reports.xml").text.contains("works like this")
-        new File(testProjectDir.root, "build/test-results/mochaTest/test-reports.xml").text.contains("tests=\"1\"")
-        new File(testProjectDir.root, "build/test-results/mochaTest/test-reports.xml").text.contains("failures=\"1\"")
-        new File(testProjectDir.root, "build/test-results/mochaTest/test-reports.xml").text.contains("true must be equivalent to false")
+        testProjectDir.resolve("build/test-results/mochaTest/test-reports.xml").text.contains("a thing")
+        testProjectDir.resolve("build/test-results/mochaTest/test-reports.xml").text.contains("works like this")
+        testProjectDir.resolve("build/test-results/mochaTest/test-reports.xml").text.contains("tests=\"1\"")
+        testProjectDir.resolve("build/test-results/mochaTest/test-reports.xml").text.contains("failures=\"1\"")
+        testProjectDir.resolve("build/test-results/mochaTest/test-reports.xml").text.contains("true must be equivalent to false")
     }
 
     def "skips running tests if source directory does not exist"() {
         given:
-        buildFile << """
+        testProjectDir.resolve("build.gradle") << """
 plugins {
   id 'com.timgroup.webpack'
 }
 """
 
-        testProjectDir.newFolder("src", "main", "javascript")
+        Files.createDirectories(testProjectDir.resolve("src/main/javascript"))
 
-        testProjectDir.newFile("package.json") << """
+        testProjectDir.resolve("package.json") << """
 {
   "devDependencies": {
     "mocha": "2.3.2",
@@ -190,15 +187,15 @@ plugins {
   }
 }
 """
-        testProjectDir.newFile("package-lock.json") << "{}"
-        testProjectDir.newFile("mocha.opts") << """
+        testProjectDir.resolve("package-lock.json") << "{}"
+        testProjectDir.resolve("mocha.opts") << """
 """
-        testProjectDir.newFile("src/main/javascript/Thing.js") << """
+        testProjectDir.resolve("src/main/javascript/Thing.js") << """
 """
 
         when:
         def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir.toFile())
                 .withArguments("check")
                 .withPluginClasspath()
                 .build()
@@ -209,16 +206,16 @@ plugins {
 
     def "skips running tests if source directory contains no files"() {
         given:
-        buildFile << """
+        testProjectDir.resolve("build.gradle") << """
 plugins {
   id 'com.timgroup.webpack'
 }
 """
 
-        testProjectDir.newFolder("src", "main", "javascript")
-        testProjectDir.newFolder("src", "test", "javascript")
+        Files.createDirectories(testProjectDir.resolve("src/main/javascript"))
+        Files.createDirectories(testProjectDir.resolve("src/test/javascript"))
 
-        testProjectDir.newFile("package.json") << """
+        testProjectDir.resolve("package.json") << """
 {
   "devDependencies": {
     "mocha": "2.3.2",
@@ -227,15 +224,15 @@ plugins {
   }
 }
 """
-        testProjectDir.newFile("package-lock.json") << "{}"
-        testProjectDir.newFile("mocha.opts") << """
+        testProjectDir.resolve("package-lock.json") << "{}"
+        testProjectDir.resolve("mocha.opts") << """
 """
-        testProjectDir.newFile("src/main/javascript/Thing.js") << """
+        testProjectDir.resolve("src/main/javascript/Thing.js") << """
 """
 
         when:
         def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir.toFile())
                 .withArguments("check")
                 .withPluginClasspath()
                 .build()

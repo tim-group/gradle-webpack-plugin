@@ -2,27 +2,23 @@ package com.timgroup.gradle.webpack
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
+
+import java.nio.file.Path
 
 class DescriptionsTest extends Specification {
-    @Rule public final TemporaryFolder testProjectDir = new TemporaryFolder()
-
-    File buildFile
-
-    def setup() {
-        buildFile = testProjectDir.newFile('build.gradle')
-    }
+    @TempDir
+    Path testProjectDir
 
     def "tasks show up in 'gradle tasks' output"() {
         given:
-        buildFile << """
+        testProjectDir.resolve('build.gradle') << """
 plugins {
   id 'com.timgroup.webpack'
 }
 """
-        testProjectDir.newFile("package.json") << """
+        testProjectDir.resolve("package.json") << """
 {
   "devDependencies": {
     "jest": "23.6.0",
@@ -31,11 +27,11 @@ plugins {
 }
 """
 
-        testProjectDir.newFile("package-lock.json") << "{}"
+        testProjectDir.resolve("package-lock.json") << "{}"
 
         when:
         def result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir.toFile())
             .withArguments("tasks")
             .withPluginClasspath()
             .build()

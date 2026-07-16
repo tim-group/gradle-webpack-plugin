@@ -3,6 +3,7 @@ plugins {
     groovy
     `maven-publish`
     id("com.gradle.plugin-publish") version "2.1.1"
+    id("com.adarshr.test-logger") version "4.0.0"
 }
 
 val repoUrl: String? by project

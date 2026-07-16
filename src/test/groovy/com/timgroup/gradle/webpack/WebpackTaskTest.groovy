@@ -2,32 +2,30 @@ package com.timgroup.gradle.webpack
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
 
+import java.nio.file.Files
+import java.nio.file.Path
 import java.util.zip.GZIPInputStream
 
+import static java.util.stream.Collectors.toSet
+
 class WebpackTaskTest extends Specification {
-    @Rule public final TemporaryFolder testProjectDir = new TemporaryFolder()
+    @TempDir
+    Path testProjectDir
 
-    File buildFile
-
-    def setup() {
-        buildFile = testProjectDir.newFile('build.gradle')
+    private static def filesIn(Path dir) {
+        return Files.list(dir).withCloseable { it.map { it.getFileName().toString() }.collect(toSet()) }
     }
 
-    private static def filesIn(File dir) {
-        return (dir.list() ?: []) as Set
-    }
-
-    private static def ungzippedBytes(File file) {
-        return new GZIPInputStream(new FileInputStream(file)).bytes
+    private static def ungzippedBytes(Path file) {
+        return new GZIPInputStream(Files.newInputStream(file)).bytes
     }
 
     def "compiles javascript files with webpack, compresses outputs and produces manifest with SHA-256 digests"() {
         given:
-        buildFile << """
+        testProjectDir.resolve("build.gradle") << """
 plugins {
   id 'com.timgroup.webpack'
 }
@@ -36,21 +34,21 @@ plugins {
 
         when:
         def result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir.toFile())
             .withArguments("assemble")
             .withPluginClasspath()
             .build()
 
         then:
         result.task(":webpack").outcome == TaskOutcome.SUCCESS
-        filesIn(new File(testProjectDir.root, "build/site")) == ["main.js", "main.js.map", "main.js.gz", "main.js.map.gz", ".MANIFEST"] as Set
-        (new File(testProjectDir.root, "build/site/.MANIFEST").text =~ /(?m)^[0-9a-f]{64} main.js \d+ \d+$/).find()
-        new File(testProjectDir.root, "build/site/main.js").bytes == ungzippedBytes(new File(testProjectDir.root, "build/site/main.js.gz"))
+        filesIn(testProjectDir.resolve("build/site")) == ["main.js", "main.js.map", "main.js.gz", "main.js.map.gz", ".MANIFEST"] as Set
+        (testProjectDir.resolve("build/site/.MANIFEST").text =~ /(?m)^[0-9a-f]{64} main.js \d+ \d+$/).find()
+        testProjectDir.resolve("build/site/main.js").bytes == ungzippedBytes(testProjectDir.resolve("build/site/main.js.gz"))
     }
 
     def "manifest digest can be specified"() {
         given:
-        buildFile << """
+        testProjectDir.resolve("build.gradle") << """
 plugins {
   id 'com.timgroup.webpack'
 }
@@ -63,21 +61,21 @@ webpack {
 
         when:
         def result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir.toFile())
             .withArguments("assemble")
             .withPluginClasspath()
             .build()
 
         then:
         result.task(":webpack").outcome == TaskOutcome.SUCCESS
-        filesIn(new File(testProjectDir.root, "build/site")) == ["main.js", "main.js.map", "main.js.gz", "main.js.map.gz", ".MANIFEST"] as Set
-        (new File(testProjectDir.root, "build/site/.MANIFEST").text =~ /(?m)^[0-9a-f]{40} main.js \d+ \d+$/).find()
-        new File(testProjectDir.root, "build/site/main.js").bytes == ungzippedBytes(new File(testProjectDir.root, "build/site/main.js.gz"))
+        filesIn(testProjectDir.resolve("build/site")) == ["main.js", "main.js.map", "main.js.gz", "main.js.map.gz", ".MANIFEST"] as Set
+        (testProjectDir.resolve("build/site/.MANIFEST").text =~ /(?m)^[0-9a-f]{40} main.js \d+ \d+$/).find()
+        testProjectDir.resolve("build/site/main.js").bytes == ungzippedBytes(testProjectDir.resolve("build/site/main.js.gz"))
     }
 
     def "resource gzipping can be disabled"() {
         given:
-        buildFile << """
+        testProjectDir.resolve("build.gradle") << """
 plugins {
   id 'com.timgroup.webpack'
 }
@@ -90,19 +88,19 @@ webpack {
 
         when:
         def result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir.toFile())
             .withArguments("assemble")
             .withPluginClasspath()
             .build()
 
         then:
         result.task(":webpack").outcome == TaskOutcome.SUCCESS
-        filesIn(new File(testProjectDir.root, "build/site")) == ["main.js", "main.js.map", ".MANIFEST"] as Set
+        filesIn(testProjectDir.resolve("build/site")) == ["main.js", "main.js.map", ".MANIFEST"] as Set
     }
 
     def "manifest generation can be disabled"() {
         given:
-        buildFile << """
+        testProjectDir.resolve("build.gradle") << """
 plugins {
   id 'com.timgroup.webpack'
 }
@@ -115,29 +113,29 @@ webpack {
 
         when:
         def result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir.toFile())
             .withArguments("assemble")
             .withPluginClasspath()
             .build()
 
         then:
         result.task(":webpack").outcome == TaskOutcome.SUCCESS
-        filesIn(new File(testProjectDir.root, "build/site")) == ["main.js", "main.js.map", "main.js.gz", "main.js.map.gz"] as Set
+        filesIn(testProjectDir.resolve("build/site")) == ["main.js", "main.js.map", "main.js.gz", "main.js.map.gz"] as Set
     }
 
     def "build fails if webpack config file is missing"() {
         given:
-        buildFile << """
+        testProjectDir.resolve("build.gradle") << """
 plugins {
   id 'com.timgroup.webpack'
 }
 """
         typicalJavascriptSetup()
-        new File(testProjectDir.root, "webpack.config.js").delete()
+        Files.delete(testProjectDir.resolve("webpack.config.js"))
 
         when:
         def result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir.toFile())
             .withArguments("assemble")
             .withPluginClasspath()
             .buildAndFail()
@@ -148,7 +146,7 @@ plugins {
 
     def "task uses alternative configuration file when specified"() {
         given:
-        buildFile << """
+        testProjectDir.resolve("build.gradle") << """
 plugins {
   id 'com.timgroup.webpack'
 }
@@ -158,11 +156,11 @@ webpack {
 }
 """
         typicalJavascriptSetup()
-        new File(testProjectDir.root, "webpack.config.js").renameTo(new File(testProjectDir.root, "webpack.alt.config.js"))
+        Files.move(testProjectDir.resolve("webpack.config.js"), testProjectDir.resolve("webpack.alt.config.js"))
 
         when:
         def result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir.toFile())
             .withArguments("assemble")
             .withPluginClasspath()
             .build()
@@ -172,16 +170,16 @@ webpack {
     }
 
     private def typicalJavascriptSetup() {
-        testProjectDir.newFolder("src", "main", "javascript")
-        testProjectDir.newFile("package.json") << """
+        Files.createDirectories(testProjectDir.resolve("src/main/javascript"))
+        testProjectDir.resolve("package.json") << """
 {
   "dependencies": {
     "webpack": "3.6.0"
   }
 }
 """
-        testProjectDir.newFile("package-lock.json") << "{}"
-        testProjectDir.newFile("webpack.config.js") << """
+        testProjectDir.resolve("package-lock.json") << "{}"
+        testProjectDir.resolve("webpack.config.js") << """
 var webpack = require("webpack");
 var path = require('path');
 function relative(suffix) {
@@ -196,7 +194,7 @@ module.exports = {
   entry: "./init"
 };
 """
-        testProjectDir.newFile("src/main/javascript/init.js") << """
+        testProjectDir.resolve("src/main/javascript/init.js") << """
 // this is init.js
 """
     }

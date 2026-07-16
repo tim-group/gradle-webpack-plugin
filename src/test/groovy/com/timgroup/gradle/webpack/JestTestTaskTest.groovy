@@ -2,31 +2,28 @@ package com.timgroup.gradle.webpack
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
+
+import java.nio.file.Files
+import java.nio.file.Path
 
 class JestTestTaskTest extends Specification {
-    @Rule public final TemporaryFolder testProjectDir = new TemporaryFolder()
-
-    File buildFile
-
-    def setup() {
-        buildFile = testProjectDir.newFile('build.gradle')
-    }
+    @TempDir
+    Path testProjectDir
 
     def "runs Jest tests and produces JUnit-style output with jest-junit 7"() {
         given:
-        buildFile << """
+        testProjectDir.resolve("build.gradle") << """
 plugins {
   id 'com.timgroup.webpack'
 }
 """
 
-        testProjectDir.newFolder("src", "main", "javascript")
-        testProjectDir.newFolder("src", "test", "javascript")
+        Files.createDirectories(testProjectDir.resolve("src/main/javascript"))
+        Files.createDirectories(testProjectDir.resolve("src/test/javascript"))
 
-        testProjectDir.newFile("package.json") << """
+        testProjectDir.resolve("package.json") << """
 {
   "devDependencies": {
     "jest": "24.9.0",
@@ -35,11 +32,11 @@ plugins {
 }
 """
 
-        testProjectDir.newFile("package-lock.json") << "{}"
+        testProjectDir.resolve("package-lock.json") << "{}"
 
-        testProjectDir.newFile("src/main/javascript/Thing.js") << """
+        testProjectDir.resolve("src/main/javascript/Thing.js") << """
 """
-        testProjectDir.newFile("src/test/javascript/Thing.test.js") << """
+        testProjectDir.resolve("src/test/javascript/Thing.test.js") << """
 describe("a thing", () => {
     it("works like this", () => {
         expect(true).toBe(true);
@@ -49,31 +46,31 @@ describe("a thing", () => {
 
         when:
         def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir.toFile())
                 .withArguments("check")
                 .withPluginClasspath()
                 .build()
 
         then:
         result.task(":jestTest").outcome == TaskOutcome.SUCCESS
-        new File(testProjectDir.root, "build/test-results/jestTest/test-reports.xml").text.contains("a thing")
-        new File(testProjectDir.root, "build/test-results/jestTest/test-reports.xml").text.contains("works like this")
-        new File(testProjectDir.root, "build/test-results/jestTest/test-reports.xml").text.contains("tests=\"1\"")
-        new File(testProjectDir.root, "build/test-results/jestTest/test-reports.xml").text.contains("failures=\"0\"")
+        testProjectDir.resolve("build/test-results/jestTest/test-reports.xml").text.contains("a thing")
+        testProjectDir.resolve("build/test-results/jestTest/test-reports.xml").text.contains("works like this")
+        testProjectDir.resolve("build/test-results/jestTest/test-reports.xml").text.contains("tests=\"1\"")
+        testProjectDir.resolve("build/test-results/jestTest/test-reports.xml").text.contains("failures=\"0\"")
     }
 
     def "runs Jest tests and produces JUnit-style output with jest-junit 8"() {
         given:
-        buildFile << """
+        testProjectDir.resolve("build.gradle") << """
 plugins {
   id 'com.timgroup.webpack'
 }
 """
 
-        testProjectDir.newFolder("src", "main", "javascript")
-        testProjectDir.newFolder("src", "test", "javascript")
+        Files.createDirectories(testProjectDir.resolve("src/main/javascript"))
+        Files.createDirectories(testProjectDir.resolve("src/test/javascript"))
 
-        testProjectDir.newFile("package.json") << """
+        testProjectDir.resolve("package.json") << """
 {
   "devDependencies": {
     "jest": "24.9.0",
@@ -82,11 +79,11 @@ plugins {
 }
 """
 
-        testProjectDir.newFile("package-lock.json") << "{}"
+        testProjectDir.resolve("package-lock.json") << "{}"
 
-        testProjectDir.newFile("src/main/javascript/Thing.js") << """
+        testProjectDir.resolve("src/main/javascript/Thing.js") << """
 """
-        testProjectDir.newFile("src/test/javascript/Thing.test.js") << """
+        testProjectDir.resolve("src/test/javascript/Thing.test.js") << """
 describe("a thing", () => {
     it("works like this", () => {
         expect(true).toBe(true);
@@ -96,16 +93,16 @@ describe("a thing", () => {
 
         when:
         def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir.toFile())
                 .withArguments("check")
                 .withPluginClasspath()
                 .build()
 
         then:
         result.task(":jestTest").outcome == TaskOutcome.SUCCESS
-        new File(testProjectDir.root, "build/test-results/jestTest/test-reports.xml").text.contains("a thing")
-        new File(testProjectDir.root, "build/test-results/jestTest/test-reports.xml").text.contains("works like this")
-        new File(testProjectDir.root, "build/test-results/jestTest/test-reports.xml").text.contains("tests=\"1\"")
-        new File(testProjectDir.root, "build/test-results/jestTest/test-reports.xml").text.contains("failures=\"0\"")
+        testProjectDir.resolve("build/test-results/jestTest/test-reports.xml").text.contains("a thing")
+        testProjectDir.resolve("build/test-results/jestTest/test-reports.xml").text.contains("works like this")
+        testProjectDir.resolve("build/test-results/jestTest/test-reports.xml").text.contains("tests=\"1\"")
+        testProjectDir.resolve("build/test-results/jestTest/test-reports.xml").text.contains("failures=\"0\"")
     }
 }
