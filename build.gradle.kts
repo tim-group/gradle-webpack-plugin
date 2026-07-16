@@ -36,7 +36,7 @@ dependencies {
     implementation("com.github.node-gradle:gradle-node-plugin:2.2.0")
 
     testImplementation("junit:junit:4.13.2")
-    testImplementation("org.spockframework:spock-core:2.3-groovy-3.0") {
+    testImplementation("org.spockframework:spock-core:2.4-groovy-3.0") {
         exclude(module = "groovy")
     }
 }
