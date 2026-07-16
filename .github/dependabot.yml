@@ -5,6 +5,10 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    groups:
+      github:
+        patterns:
+          - "actions/*"
 
   - package-ecosystem: "gradle"
     directory: "/"
