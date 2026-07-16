@@ -18,6 +18,7 @@ if (buildNumber.isPresent) version = "1.0.${buildNumber.get()}"
 description = "Build Javascript sources with Webpack and test with Mocha / Jest"
 
 repositories {
+    gradlePluginPortal()
     mavenCentral()
 }
 
