@@ -8,12 +8,19 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v2
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Install Java 8 to compile against
+        uses: actions/setup-java@v5
         with:
           distribution: zulu
-          java-version: 11
-      - name: Run tests
-        uses: gradle/gradle-build-action@v2
+          java-version: 8
+      - name: Install Java 17 for Gradle
+        uses: actions/setup-java@v5
         with:
-          arguments: check
+          distribution: zulu
+          java-version: 17
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+      - name: Run tests
+        run: ./gradlew -Porg.gradle.java.installations.auto-download=false --warning-mode all check
