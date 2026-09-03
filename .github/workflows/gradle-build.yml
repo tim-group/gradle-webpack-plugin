@@ -29,7 +29,7 @@ jobs:
         if: always()
         uses: test-summary/action@v2
         with:
-          paths: build/test-results/**/TEST-*.xml
+          paths: "**/build/test-results/**/TEST-*.xml"
 
       - name: Store test reports on failure
         if: failure()
@@ -37,4 +37,4 @@ jobs:
         with:
           name: test-reports
           path: |
-            build/reports/tests/
+            **/build/reports/tests/
